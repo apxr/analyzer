@@ -1,1 +1,6 @@
 exportPattern("^[[:alpha:]]+")
+importFrom("stats", "median", "quantile", "sd")
+S3method(explain, factor)
+S3method(explain, character)
+S3method(explain, numeric)
+S3method(explain, integer, explain.numeric)

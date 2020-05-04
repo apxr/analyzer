@@ -3,7 +3,7 @@
 #' @param df A data.frame
 #' @return Prints summary of the dataset
 #' @examples
-#' explain(df)
+#' explainer(mtcars)
 #' @export
 
 explainer <- function(df) {
@@ -12,7 +12,7 @@ explainer <- function(df) {
   dataname     <- deparse(substitute(df))
   cat(paste0("Data: ", dataname,
              "\nType: ", paste0(class(df), collapse = ", "),
-             "\n\nNumber of variables: ", ncol(df),
+             "\n\nNumber of columns: ", ncol(df),
              "\nNumber of rows: ", nrow(df),
              "\nNumber of unique rows: ", data.table::uniqueN(df),
              "\n"))
@@ -28,18 +28,7 @@ explainer <- function(df) {
                paste0(rep(".", nchar(cat_)),collapse = ""),
                "\n"))
 
-    if (is.factor(X)){
-      explainFactor(X)
-    } else if (is.character(X)) {
-      explainFactor(X)
-    } else {
-      uniqX <- length(unique(X))
-      if (uniqX <= 2) {
-        explainFactor(X)
-      } else if (is.numeric(X)) {
-        explainNumbers(X)
-      }
-    }
+    explain(X)
 
     linedivider(consolewidth)
   }, df, linedivider, consolewidth)
@@ -55,24 +44,28 @@ explainer <- function(df) {
 
 linedivider <- function(consolewidth){
   cat("\n")
-  cat(paste0(rep("-", consolewidth),collapse = ""))
+  cat(paste0(rep("x", consolewidth),collapse = ""))
   cat("\n")
 }
 
-explainNumbers <- function(x){
 
+explain <- function(X, ...) {
+  UseMethod("explain")
+}
+
+explain.numeric <- function(x) {
   # printing summary
-  quant <- round(quantile(x, probs = seq(0,1,0.2), names = T),4)
+  quant <- round(quantile(x, probs = seq(0,1,0.2), names = T, na.rm = T),4)
   uniqx <- length(unique(x))
-  medi  <- median(x, na.rm = F)
+  medi  <- median(x, na.rm = T)
   out <- data.frame(unique = uniqx,
                     missing = sum(is.na(x)),
                     mean   = round(mean(x, na.rm = T),4),
                     sd     = round(sd(x, na.rm = T), 4),
-                    'trimmed_mean5%' = round(mean(x, trim = 0.05, na.rm = F), 4),
+                    'trimmed_mean5%' = round(mean(x, trim = 0.05, na.rm = T), 4),
                     median = round(medi, 4),
                     t(quant)
-  , check.names = F, stringsAsFactors = F)
+                    , check.names = F, stringsAsFactors = F)
 
   names(out) <- paste0("     ", names(out))
   print(out, row.names = F)
@@ -82,18 +75,13 @@ explainNumbers <- function(x){
   } else {
     consoleBoxplot(x)
   }
-
 }
 
-# explainChar <- function(x){
-#
-# }
-
-explainBinary <- function(x){
-
+explain.character <- function(x) {
+  print("This is a character")
 }
 
-explainFactor <- function(x){
+explain.factor <- function(x) {
   out <- data.frame(unique = length(unique(x)),
                     missing = sum(is.na(x))
                     , check.names = F, stringsAsFactors = F)
@@ -136,10 +124,10 @@ consoleBoxplot <- function(x) {
   IQR <- box[4]-box[2]
 
   cat(paste0("|",
-         paste0(rep(".", box[2]-2),collapse = ""), "<",
-         paste0(rep("=", box[3]-box[2]-1),collapse = ""), "*",
-         paste0(rep("=", box[4]-box[3]-1),collapse = ""), ">",
-         paste0(rep(".", box[5]-box[4]-1),collapse = ""), "|\n"))
+         paste0(rep(".", max(0, box[2]-2)),collapse = ""), "<",
+         paste0(rep("=", max(0, box[3]-box[2]-1)),collapse = ""), "*",
+         paste0(rep("=", max(0, box[4]-box[3]-1)),collapse = ""), ">",
+         paste0(rep(".", max(0, box[5]-box[4]-1)),collapse = ""), "|\n"))
 
   cat("Legends: | min and max, <==...==> IQR, * median \n")
   if (box[5] > box[4]+1.5*IQR) {

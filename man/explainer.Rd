@@ -16,5 +16,5 @@ Prints summary of the dataset
 Show details of the data frame
 }
 \examples{
-explain(df)
+explainer(mtcars)
 }
