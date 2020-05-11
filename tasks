@@ -1,6 +1,6 @@
 1. Associations
   a. Conitnuous - Pearson, Spearman, Kendall, for non-parametrics (if pearson is required for binary, binary can be set as numeric and method = "Pearson")
-  b. Categorical - chi sq, Cramer's V, Kendall, Spearman for ordinal (passed as numeric type in order)
+  b. Categorical - chi sq, Cramer's V, Kendall, Spearman for ordinal (passed as numeric type in order, with variable name in categorial argument)
   c. Continous - Categorical
 
 2. Plots
@@ -10,5 +10,6 @@
     - Categorical
     - Both vs y variable
   c. Association plots
+  d. missing values plot
 
 3. Stuffs from NonParametric stats and Regression class

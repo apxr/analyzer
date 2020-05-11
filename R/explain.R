@@ -119,7 +119,7 @@ freqTable <- function(Value) {
 
 consoleBoxplot <- function(x) {
   cat("Box plot: \n")
-  quant <- quantile(x)
+  quant <- quantile(x, na.rm = T)
   box <- round((quant-quant[1])*round(0.9*getOption("width"))/(quant[5]-quant[1]))
   IQR <- box[4]-box[2]
 
