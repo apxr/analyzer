@@ -13,3 +13,10 @@
   d. missing values plot
 
 3. Stuffs from NonParametric stats and Regression class
+
+
+
+modifications -
+denisty plots - change Y with counts and remove y axis title
+x numeric plots - update the limit of x axis so when changing the binwidht also keeps the axis same for both the above and below plot (binwidth = 5, for mpg of mtcars) - add x limit as [min-binwidth, max+binwidth]
+

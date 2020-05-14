@@ -12,6 +12,10 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     data.table
+    ggplot2
+    grid
+    gridExtra
+    dplyr
 RoxygenNote: 7.1.0
 Suggests: 
     testthat

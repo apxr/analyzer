@@ -1,4 +1,4 @@
-ChisqCramer <- function(factb, use) {
+QQassociation <- function(factb, use, method2) {
 
   chiCor <- function(x, y) {
     tbl <- table(x, y)
@@ -45,4 +45,4 @@ ChisqCramer <- function(factb, use) {
   return(list(chisq = r, cramers = cramerV))
 }
 
-association(tb, categorical = c("cyl", "vs","gear"), use = "complete.obs", method2 = "cramers")
+# association(tb, categorical = c("cyl", "vs","gear"), use = "complete.obs", method2 = "cramers")
