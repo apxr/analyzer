@@ -5,8 +5,12 @@ mergeAnalyzer <- function(x, y, ...) {
   cl <- class(x)
 
   if (!"data.table" %in% cl) {
-    x <- data.table::as.data.table(x)
-    y <- data.table::as.data.table(y)
+    if (requireNamespace("data.table", quietly = TRUE)) {
+      x <- data.table::as.data.table(x)
+      y <- data.table::as.data.table(y)
+    } else {
+      warning("Install data.table package for faster run")
+    }
   }
 
   args <- list(...)

@@ -7,14 +7,18 @@
 #' @export
 
 explainer <- function(df) {
-
+  if (requireNamespace("data.table", quietly = TRUE)) {
+    uniqRow <- data.table::uniqueN(df)
+  } else {
+    uniqRow <- nrow(unique(df))
+  }
   consolewidth <- getOption("width")
   dataname     <- deparse(substitute(df))
   cat(paste0("Data: ", dataname,
              "\nType: ", paste0(class(df), collapse = ", "),
              "\n\nNumber of columns: ", ncol(df),
              "\nNumber of rows: ", nrow(df),
-             "\nNumber of unique rows: ", data.table::uniqueN(df),
+             "\nNumber of unique rows: ", uniqRow,
              "\n"))
   linedivider(consolewidth)
 
@@ -50,7 +54,7 @@ linedivider <- function(consolewidth){
 
 
 explain <- function(X, ...) {
-  UseMethod("explain")
+  UseMethod("explain", X)
 }
 
 explain.numeric <- function(x) {
