@@ -1,4 +1,4 @@
-CQassociation <- function(numtb, factb, method3, use) {
+CQassociation <- function(numtb, factb, method3, use, normality_test_method) {
 
   nr<-ncol(numtb)
   nc<-ncol(factb)
@@ -55,13 +55,13 @@ CQ_ <- function(x,y,method3,varnames) {
       return(NA)
     }
     # test for normality
-    norm_test <- c(tryCatch(shapiro.test(x1)$p.value, error=function(e){
-                      warning(paste0("Shapiro Test (Normality) failed for ", varnames[1])); return(0)
-                    }),
-                   tryCatch(shapiro.test(x2)$p.value, error=function(e){
-                      warning(paste0("Shapiro Test (Normality) failed for ", varnames[1])); return(0)
-                    }))
-    norm_test <- all(norm_test>0.05)
+    norm_test <- c(tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1]), error=function(e){
+                            warning(paste0("Normality test failed for ", varnames[1])); return(0)
+                  }),
+                  tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1]), error=function(e){
+                            warning(paste0("Normality test failed for ", varnames[1])); return(0)
+                  }))
+    norm_test <- all(norm_test)
     # test for equal variance
     var_test <- var.test(x~y)$p.value > 0.05
 
@@ -99,12 +99,12 @@ CQ_ <- function(x,y,method3,varnames) {
     npvalue<-c()
     for (uq in uniqY) {
       xz <- x[y==uq]
-      norm_test <- tryCatch(shapiro.test(xz)$p.value, error=function(e){
-        warning(paste0("Shapiro Test (Normality) failed for ", varnames[1])); return(0)
+      norm_test <- tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1]), error=function(e){
+        warning(paste0("Normality test failed for ", varnames[1])); return(0)
         })
       npvalue<-c(npvalue, norm_test)
     }
-    norm_test <- all(npvalue>0.05)
+    norm_test <- all(npvalue)
     # test for equal variance (TRUE means same variance)
     if (norm_test) {
       var_test <- bartlett.test(x~y)$p.value > 0.05

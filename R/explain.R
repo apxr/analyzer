@@ -42,13 +42,16 @@ explainer <- function(df) {
 #' Draws a horizontal line on console
 #'
 #' @param consolewidth a integer
+#' @param st a character or symbol of length to be used for creating the line
 #' @return Prints a horizontal line of width 'consolewidth'
 #' @examples
 #' linedivider(20)
+#' @export
 
-linedivider <- function(consolewidth){
+linedivider <- function(consolewidth = getOption("width"), st = 'x'){
+  if (nchar(st) != 1 | length(st) != 1) stop("'st' should of length 1")
   cat("\n")
-  cat(paste0(rep("x", consolewidth),collapse = ""))
+  cat(paste0(rep(st, consolewidth),collapse = ""))
   cat("\n")
 }
 
