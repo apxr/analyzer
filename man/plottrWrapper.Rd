@@ -19,39 +19,43 @@ plottrWrapper(
 \arguments{
 \item{tb}{a data.frame}
 
-\item{yvar}{a string showing the repsonse (dependent) variable name. Can be \code{NULL} if reponse
-variable is not present}
+\item{yvar}{a string showing the repsonse (dependent) variable name. Can be
+\code{NULL} if reponse variable is not present}
 
-\item{xclasses}{a vector of length \code{= ncol(tb)} with the data type of all the columns.
-Can be \code{NULL}, in such case function assigns a class to each column. Look into [plottr()]
-for more details.}
+\item{xclasses}{a vector of length \code{= ncol(tb)} with the data type of
+all the columns. Can be \code{NULL}, in such case function assigns a class
+to each column. Look into [plottr()] for more details.}
 
-\item{yclass}{class of response variable. Can be \code{NULL}, but must have value
-when \code{yvar} is not \code{NULL}. Value can be \code{'factor'} or \code{'numeric'}}
+\item{yclass}{class of response variable. Can be \code{NULL}, but must have
+value when \code{yvar} is not \code{NULL}. Value can be \code{'factor'} or
+\code{'numeric'}}
 
-\item{printall}{(logical) Whether user wants to show the plots. Setting this as \code{FALSE}
-will only returns a list of plots silently.}
+\item{printall}{(logical) Whether user wants to show the plots. Setting this
+as \code{FALSE} will only returns a list of plots silently.}
 
-\item{binwidth.x, binwidth.y}{binwidth for \code{x} and \code{y} used for generating the histogram.
-If there are \code{NULL}, then ggplot2 assigns the value
-on its own. Look at \code{binwidth} of ggplot for more information}
+\item{binwidth.x, binwidth.y}{binwidth for \code{x} and \code{y} used for
+generating the histogram. If there are \code{NULL}, then ggplot2 assigns
+the value on its own. Look at \code{binwidth} of ggplot for more
+information}
 
-\item{callasfactor}{minimum unique values needed for \code{x} to be considered as numeric.
-See details of [plottr()] for more information.}
+\item{callasfactor}{minimum unique values needed for \code{x} to be
+considered as numeric. See details of [plottr()] for more information.}
 
-\item{inc.density}{(logical) Whether density plot is needed along with histogram.}
+\item{inc.density}{(logical) Whether density plot is needed along with
+histogram.}
 }
 \value{
-A list of plots for all the variables. Each plot will have the class \code{analyzerPlot}
-and can be displayed using \code{plot()}. If \code{printall = TRUE}, then all plots will also
-be displayed.
+A list of plots for all the variables. Each plot will have the class
+  \code{analyzerPlot} and can be displayed using \code{plot()}. If
+  \code{printall = TRUE}, then all plots will also be displayed.
 }
 \description{
-\code{plottrWrapper} is a wrapper built on \code{plottr} to create plots for all the variables
+\code{plottrWrapper} is a wrapper built on \code{plottr} to create plots for
+all the variables
 }
 \details{
-This function calls [plottr()] multiple times to create the plots for all the variables.
-For more information on plots, look into \code{plottr}
+This function calls [plottr()] multiple times to create the plots for all the
+variables. For more information on plots, look into \code{plottr}
 }
 \examples{
 # simple use

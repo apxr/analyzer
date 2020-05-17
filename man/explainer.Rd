@@ -4,17 +4,25 @@
 \alias{explainer}
 \title{Show details of the data frame}
 \usage{
-explainer(df)
+explainer(df, ...)
 }
 \arguments{
 \item{df}{A data.frame}
+
+\item{...}{parameters for explain}
 }
 \value{
-Prints summary of the dataset
+Prints details of the dataset which includes: dataset name,
+type, number of columns, rows and unique rows. After this output of
+\code{explain} is printed for all the columns
 }
 \description{
-Show details of the data frame
+\code{explainer} shows detail of all the columns of the data
+}
+\details{
+This function uses \code{explain} on each column.
 }
 \examples{
 explainer(mtcars)
+
 }

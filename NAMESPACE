@@ -2,10 +2,12 @@
 
 S3method(plot,analyzerPlot)
 export(explainer)
+export(kurtosis)
 export(linedivider)
 export(plotNA)
 export(plottr)
 export(plottrWrapper)
+export(skewness)
 import(ggplot2)
 import(grid)
 import(gridExtra)

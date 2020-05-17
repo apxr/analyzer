@@ -3,57 +3,54 @@
 #' \code{plottr} returns a grob with multiple plots explaining the variable
 #'
 #' This is a function which helps in understanding the data through multiple
-#' visualizations. This works either for a single \code{x} variable
-#' or for a combination of predictor \code{x} and repsonse \code{y} variables.
-#' Based on class of \code{x} and \code{y} different types of
-#' plots are automatically generated.
+#' visualizations. This works either for a single \code{x} variable or for a
+#' combination of predictor \code{x} and repsonse \code{y} variables. Based on
+#' class of \code{x} and \code{y} different types of plots are automatically
+#' generated.
 #'
-#' Defining the class of \code{x} and \code{y}: If \code{y} is not NULL,
-#' then \code{yclass} has to be passed (which can be 'factor' for
-#' classification type problem, or 'numeric' for regression). \code{xclass}
-#' can be set as NULL, in such case the function assigns a class
-#' based on the contents. If \code{x} is factor/character type, then
-#' \code{xclass = 'factor'}, else if \code{x} is numeric with
-#' number of unique values less than \strong{callasfactor} parameter value,
-#' then \code{xclass = 'factor'}, else \code{xclass = 'numeric'}
+#' Defining the class of \code{x} and \code{y}: If \code{y} is not NULL, then
+#' \code{yclass} has to be passed (which can be 'factor' for classification type
+#' problem, or 'numeric' for regression). \code{xclass} can be set as NULL, in
+#' such case the function assigns a class based on the contents. If \code{x} is
+#' factor/character type, then \code{xclass = 'factor'}, else if \code{x} is
+#' numeric with number of unique values less than \strong{callasfactor}
+#' parameter value, then \code{xclass = 'factor'}, else \code{xclass =
+#' 'numeric'}
 #'
-#' Types of plots: If the \code{y} is \code{NULL}, then histogram with
-#' density (when \code{inc.density = TRUE}) is generated for numeric \code{x}.
-#' Boxplot is also shown in the same histogram using color and vertical lines.
-#' For factor \code{x}, a pie chart showing the distribution. If \code{y}
-#' is not \code{NULL}, then additional plots are added:
+#' Types of plots: If the \code{y} is \code{NULL}, then histogram with density
+#' (when \code{inc.density = TRUE}) is generated for numeric \code{x}. Boxplot
+#' is also shown in the same histogram using color and vertical lines. For
+#' factor \code{x}, a pie chart showing the distribution. If \code{y} is not
+#' \code{NULL}, then additional plots are added:
 #'
-#' \itemize{
-#'  \item \strong{factor \code{x}, factor \code{y}}: Crosstab with heatmap
-#'  \item \strong{factor \code{x}, numeric \code{y}}: histogram and
-#'  boxplot of \code{y} for different values of \code{x}
-#'  \item \strong{numeric \code{x}, factor \code{y}}: histogram and
-#'  boxplot of \code{x} for different values of \code{y}
-#'  \item \strong{numeric \code{x}, numeric \code{y}}: Scatter plot
-#'  of \code{x} and \code{y} with rug plot included
-#' }
+#' \itemize{ \item \strong{factor \code{x}, factor \code{y}}: Crosstab with
+#' heatmap \item \strong{factor \code{x}, numeric \code{y}}: histogram and
+#' boxplot of \code{y} for different values of \code{x} \item \strong{numeric
+#' \code{x}, factor \code{y}}: histogram and boxplot of \code{x} for different
+#' values of \code{y} \item \strong{numeric \code{x}, numeric \code{y}}: Scatter
+#' plot of \code{x} and \code{y} with rug plot included }
 #'
 #' @param x the vector of which visualization is needed
 #' @param y the repsonse variable (if available, else NULL). Default is NULL
-#' @param xclass class of x, if \code{xclass = NULL} then function
-#' assigns the class \code{(factor/numeric)}
-#' @param yclass class of x, if \code{y} is not NULL than this should
-#' be set as either \code{factor} or \code{numeric}
+#' @param xclass class of x, if \code{xclass = NULL} then function assigns the
+#'   class \code{(factor/numeric)}
+#' @param yclass class of x, if \code{y} is not NULL than this should be set as
+#'   either \code{factor} or \code{numeric}
 #' @param xname,yname name of x and y. Can be the column name.
-#' @param binwidth.x,binwidth.y binwidth for \code{x} and \code{y}
-#' used for generating the histogram.
-#' If there are \code{NULL}, then ggplot2 assigns the value
-#' on its own. Look at \code{binwidth} of ggplot for more information
+#' @param binwidth.x,binwidth.y binwidth for \code{x} and \code{y} used for
+#'   generating the histogram. If there are \code{NULL}, then ggplot2 assigns
+#'   the value on its own. Look at \code{binwidth} of ggplot for more
+#'   information
 #' @param callasfactor minimum unique values needed for \code{x} to be
-#' considered as numeric. See details for more information
-#' @param inc.density (logical) Whether density plot is needed along
-#' with histogram.
+#'   considered as numeric. See details for more information
+#' @param inc.density (logical) Whether density plot is needed along with
+#'   histogram.
 #' @param ... Extra parameters to pass to ggplot
 #'
-#' @return This function returns a grob of class 'analyzerPlot' with
-#' exploratory plots. Based on class of \code{x} and \code{y}, this
-#' generates different plots including histogram, density, box,
-#' crosstab heatmap etc. To view the plot, use \code{plot()}
+#' @return This function returns a grob of class 'analyzerPlot' with exploratory
+#'   plots. Based on class of \code{x} and \code{y}, this generates different
+#'   plots including histogram, density, box, crosstab heatmap etc. To view the
+#'   plot, use \code{plot()}
 #'
 #' @examples
 #' # simple plot with numerix x
@@ -186,8 +183,8 @@ plottr <- function(x, y = NULL, xclass = NULL, yclass = NULL, xname = 'x', yname
                              c(xname, yname,"Count"))
 
         xyplot <- ggplot(crosstab, aes_string(xname, yname, fill= "Count")) +
-          geom_raster(color = "gray") +
-          scale_fill_gradient2(low="white", high="red") +
+          geom_tile(color = "grey69") +
+          scale_fill_gradient2(low="white", high="#FF6666") +
           #labs(title="Crosstab")+
           geom_text(aes(label=Count))+
           theme(panel.grid.major=element_blank(),
@@ -216,11 +213,15 @@ plottr <- function(x, y = NULL, xclass = NULL, yclass = NULL, xname = 'x', yname
     if (inc.density) {
       p1 <- p1 + geom_density(aes(y = ..density..), alpha=.2, fill="#000000") +
         stat_bin(aes(y=..density..), colour="black", fill="#000000", alpha = 0.6, binwidth = binwidth.x)
+      titl <- "Histogram & Density plot"
+      ytitl <- "Density"
     } else {
-      p1 <- p1 + geom_histogram(color="black")
+      p1 <- p1 + geom_histogram(color="black", binwidth = binwidth.x)
+      titl <- "Histogram"
+      ytitl <- "Frequency"
     }
     p1 <- p1 +
-      labs(title="Histogram and density plot", y=NULL) +
+      labs(title=titl, y=ytitl) +
       scale_fill_manual('',
                         values = '#FF6666',
                         guide = guide_legend(override.aes = list(alpha = 0.5))) +

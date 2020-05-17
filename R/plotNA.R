@@ -2,35 +2,32 @@
 #'
 #' \code{plotNA} returns a grob visualizing the missing values in data
 #'
-#' This is a function which helps in visualizing the missing values
-#' in data using plots. By default a bar plot is generated
-#' which shows the count of missing values in each variable.
+#' This is a function which helps in visualizing the missing values in data
+#' using plots. By default a bar plot is generated which shows the count of
+#' missing values in each variable.
 #'
-#' If \code{order} is set as \code{TRUE} then the bars are arranged in
-#' order of missing values. If \code{limit} is set
-#' as \code{TRUE} then limit of axis is set to [0, nrow(tb)]. If
-#' \code{add_percent} is set as \code{TRUE} then percent is added
-#' as text to the bars. If \code{row.level} is set to \code{TRUE} then
-#' an additional plot is generated which shows which rows
-#' have missing values and in which variable (reshape2
-#' (\url{cran.r-project.org/web/packages/reshape2/index.html})
-#' library is required for this).
+#' If \code{order} is set as \code{TRUE} then the bars are arranged in order of
+#' missing values. If \code{limit} is set as \code{TRUE} then limit of axis is
+#' set to [0, nrow(tb)]. If \code{add_percent} is set as \code{TRUE} then
+#' percent is added as text to the bars. If \code{row.level} is set to
+#' \code{TRUE} then an additional plot is generated which shows which rows have
+#' missing values and in which variable (reshape2
+#' (\url{cran.r-project.org/web/packages/reshape2/index.html}) library is
+#' required for this).
 #'
 #' @param tb a data.frame
-#' @param order (logical) Whether to order the variables based
-#' on missing values in plot
-#' @param limit (logical) Whether to limit the plot to maximum
-#'  missing value. FALSE means the limit of axis will be [0, nrow(tb)]
-#' @param add_percent (logical) Whther to add percent as data
-#' labels on bar plot
-#' @param row.level (logical) Whether to create plot at rows
-#' and variables level
+#' @param order (logical) Whether to order the variables based on missing values
+#'   in plot
+#' @param limit (logical) Whether to limit the plot to maximum missing value.
+#'   FALSE means the limit of axis will be [0, nrow(tb)]
+#' @param add_percent (logical) Whther to add percent as data labels on bar plot
+#' @param row.level (logical) Whether to create plot at rows and variables level
 #'
-#' @return This function returns a grob of class 'analyzePlot' which
-#' has a bar plot showing the count of missing value for each variable.
-#' \code{order, limit, add_percent} can be used to modify the bar plot.
-#'  An additional plot will be created and added to the grob
-#' if \code{row.level} is set as \code{TRUE}
+#' @return This function returns a grob of class 'analyzePlot' which has a bar
+#'   plot showing the count of missing value for each variable. \code{order,
+#'   limit, add_percent} can be used to modify the bar plot. An additional plot
+#'   will be created and added to the grob if \code{row.level} is set as
+#'   \code{TRUE}
 #'
 #' @examples
 #' p <- plotNA(airquality)
