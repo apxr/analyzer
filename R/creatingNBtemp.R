@@ -1,32 +1,22 @@
 # tx <- c('---
-# title: "Untitled"
-# output: html_document
+# title: "R Notebook"
+# output: html_notebook
 # ---
 #
-# ```{r setup, include=FALSE}
-# knitr::opts_chunk$set(echo = TRUE)
+# This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
+#
+# Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.
+#
+# ```{r}
+# plot(cars)
 # ```
 #
-# ## R Markdown
+# Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 #
-# This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
 #
-# When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-#
-# ```{r cars}
-# summary(cars)
-# ```
-#
-# ## Including Plots
-#
-# You can also embed plots, for example:
-#
-# ```{r pressure, echo=FALSE}
-# plot(pressure)
-# ```
-#
-# Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-# ')
+# The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.'
+#         )
 #
 # tx <- paste0(tx,
 # "\n\n
@@ -35,11 +25,11 @@
 # print(x)
 # ```
 # ### This is an additional line.
-# ## This is 2
+# ## This is 2(second attempt)
 # # This is largest.")
 #
 # cat(tx, file = "trial.rmd")
-# render("trial.rmd", output_format = "html_document", output_file = "trial.html")
+# rmarkdown::render("trial.rmd", output_format = "html_document", output_file = "trial2.html")
 #
 #
 # # to save and print the explain

@@ -1,5 +1,72 @@
-CCassociation <- function(numtb, use, norm_test_all) {
+#' Association (Correlation) between Continous (numeric) Variables
+#'
+#' \code{CCassociation} finds correlation between all the variables in data
+#' with only numeric columns
+#'
+#' This function calls \code{cor} function to calculate the correlation values.
+#' The difference is that this doesn't take method as parameter, instead it
+#' decides the methods iteself using normality tests. If the variables satisfy the
+#' assumption of Pearson correlation, then pearson correlation is calculated.
+#' Otherwise Spearman is calculated. To learn more, check the
+#' \code{\link[stats]{cor}}
+#'
+#' @seealso
+#' \code{\link{association}} for association between any type of variables,
+#' \code{\link{QQassociation}} for Association between Categorical variables,
+#' \code{\link{CQassociation}} for Association between Continuous-Categorical variables
+#'
+#' @param numtb a data frame with all the numerical columns. This should
+#' have atleast two columns
+#' @param use an optional character string giving a method for computing
+#'   association in the presence of missing values. This must be (complete or an
+#'   abbreviation of) one of the strings "everything", "all.obs",
+#'   "complete.obs", "na.or.complete", or "pairwise.complete.obs". If use is
+#'   "everything", NAs will propagate conceptually, i.e., a resulting value will
+#'   be NA whenever one of its contributing observations is NA. If use is
+#'   "all.obs", then the presence of missing observations will produce an error.
+#'   If use is "complete.obs" then missing values are handled by casewise
+#'   deletion (and if there are no complete cases, that gives an error).
+#'   "na.or.complete" is the same unless there are no complete cases, that gives
+#'   NA
+#' @param norm_test_all a logical named vector with TRUE when the
+#'  column follows normality assumption, otherwise FALSE. This should have
+#'  TRUE or FALSE for all the columns present in \code{numtb}
+#'
+#' @return a table of correleations among the variables with number or
+#' rows and column same as the number of columns in \code{numtb}.
+#'
+#' @examples
+#' CCassociation(mtcars)
+#'
+#' # with norm_test_all
+#' norm_test_all <- rep(TRUE, ncol(mtcars))
+#' names(norm_test_all) <- colnames(mtcars)
+#' CCassociation(mtcars, use = "complete.obs", norm_test_all = norm_test_all)
+#' rm(norm_test_all)
+#'
+#' @export
+CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
 
+  CC_ <- function(x, y, use, varnames, norm_test) {
+
+    if (norm_test) {
+      warning(paste0("Variable ", paste0(varnames, collapse = ", "),
+                     " follows normality assumptions. Doing parameteric test (Pearson) for variables: ",
+                     paste0(varnames, collapse = ", ")))
+      return(cor(x, y, use=use, method = "pearson"))
+    } else {
+      warning(paste0("Variable ", paste0(varnames, collapse = ", "),
+                     " doesn't follow normality assumptions. Doing non-parameteric test (Spearman) for variables: ",
+                     paste0(varnames, collapse = ", ")))
+      return(cor(x, y, use=use, method="spearman"))
+    }
+
+  }
+
+  if (is.null(norm_test_all)) {
+    norm_test_all <- rep(TRUE, ncol(numtb))
+    names(norm_test_all) <- colnames(numtb)
+  }
   ncx <- ncol(numtb)
   r <- matrix(0, nrow = ncx, ncol = ncx)
   rownames(r) <- colnames(numtb)
@@ -37,33 +104,4 @@ CCassociation <- function(numtb, use, norm_test_all) {
     }
   }
   return(r)
-}
-
-CC_ <- function(x, y, use, varnames, norm_test) {
-
-  if (norm_test) {
-    warning(paste0("Variable ", paste0(varnames, collapse = ", "),
-                   " follows normality assumptions. Doing parameteric test (Pearson) for variables: ",
-                   paste0(varnames, collapse = ", ")))
-    return(cor(x, y, use=use, method = "pearson"))
-  } else {
-    warning(paste0("Variable ", paste0(varnames, collapse = ", "),
-                   " doesn't follow normality assumptions. Doing non-parameteric test (Spearman) for variables: ",
-                   paste0(varnames, collapse = ", ")))
-    return(cor(x, y, use=use, method="spearman"))
-  }
-
-}
-
-
-CCwarning_for_norm <- function(norm_test_all) {
-  for (i in 1:length(norm_test_all)) {
-    if (norm_test_all[i]) {
-      warning(paste0("Variable ", names(norm_test_all[i]),
-                     " follows normality assumption, use parametric test (Pearson) for this variable"))
-    } else {
-      warning(paste0("Variable ", names(norm_test_all[i]),
-                     " doesn't follow normality assumption, use non-parametric test (Spearman / Kendall) for this variable"))
-    }
-  }
 }

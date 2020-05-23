@@ -94,3 +94,135 @@ kurtosis <- function(x, na.rm = T) {
   }
 
 }
+
+
+#' Draws a horizontal line on console
+#'
+#' @param consolewidth a integer
+#' @param st a character or symbol of length to be used for creating the line
+#' @return Prints a horizontal line of width 'consolewidth'
+#' @examples
+#' linedivider(20)
+#' @export
+
+linedivider <- function(consolewidth = getOption("width"), st = 'x'){
+  if (nchar(st) != 1 | length(st) != 1) stop("'st' should of length 1")
+  cat("\n")
+  cat(paste0(rep(st, consolewidth),collapse = ""))
+  cat("\n")
+}
+
+#' Frequency table and Histogram
+#'
+#' \code{freqTable} prints a frequency table and histogram of a vector.
+#'
+#' This function works for all type of vector type. But calling \code{freqTable}
+#' for vector with many unique values will print a very long table. If the
+#' limit parameter is left blank, then the limit of
+#' histogram is adjusted automatically and is shown at the end in brackets
+#' (eg. 50% means full bar is equal to 50% frequency).
+#' This function is used in the \code{explainer}.
+#'
+#' @param Value a vector of any type
+#' @param limit Upper limit of the bars in histogram. Default is NULL,
+#' for which the function will automatically find the suitable limit.
+#' This value should be in fraction (between 0 to 1)
+#'
+#' @return Prints a table with columns \itemize{
+#'  \item \code{Value} Value. Each row has a unique value in this table
+#'  \item \code{Freq} The frequency count of the Value
+#'  \item \code{Proportion} Proportion of the Value \code{(= Freq / length(x))}
+#' }
+#' This table is followed by a histogram with bars for each of the unique
+#' values present in the data.
+#'
+#' @examples
+#' freqTable(mtcars$cyl)
+#' freqTable(mtcars$mpg, limit = 0.08)
+#'
+#'@export
+freqTable <- function(Value, limit = NULL) {
+  out <- data.frame(table(Value), stringsAsFactors = F)
+  out$Proportion <- out$Freq/length(Value)*100
+
+  if (is.null(limit)) {
+    maxperc <- max(out$Proportion)
+    maxperc <- ceiling(maxperc/25)*25
+  } else {
+    maxperc <- limit*100
+  }
+
+  if (maxperc < max(out$Proportion)){
+    warning("Increasing limit to fit the bars")
+    maxperc <- ceiling(max(out$Proportion))
+  }
+  if (maxperc > 100) {
+    warning("limit can't be greater than 1. Setting this as 1")
+    maxperc <- 100
+  }
+
+  bars <- unlist(lapply(out$Proportion, function(x, maxperc) {
+    count = 100*round(x/2)/maxperc
+    return(paste0("|",
+                  paste0(rep("*", count),collapse = ""),
+                  paste0(rep(".", 50-count),collapse = ""),
+                  "|")
+    )
+  }, maxperc))
+
+  out$Proportion <- round(out$Proportion/100, 3)
+  out$' ' <- paste0(bars, " (", maxperc, "%)")
+
+  return(out)
+}
+
+#' Boxplot on the console
+#'
+#' \code{consoleBoxplot} prints the boxplot on console.
+#'
+#' This function is for the numeric vectors. It prints a boxplot in a single line
+#' on the console. It automatically adjusts for the width of the console.
+#' The input vector must have a length of three, otherwise the function
+#' will throw a warning and not print any plot.
+#'
+#' In case of any potential outliers (based on 1.5*IQR criteria), this wil
+#' give a warning.
+#' This function is used in the \code{explainer}.
+#'
+#' @param x a numeric vector of length atleast 3
+#'
+#' @return prints a boxplot on the console which has:
+#' \itemize{
+#'  \item \code{|} at start and end means the minimum and maximum value respectively
+#'  \item \code{<==*==>} The IQR region
+#'  \item \code{*} shows the median
+#'  \item \code{...} everything else in between
+#' }
+#' Gives a warning of potential outliers (if present)
+#'
+#' @examples
+#' consoleBoxplot(mtcars$mpg)
+#'
+#' @export
+consoleBoxplot <- function(x) {
+  cat("Box plot: \n")
+  if (length(unique(x)) < 3) {
+    cat("No boxplot for this as unique values are < 3.")
+  } else {
+    quant <- quantile(x, na.rm = T)
+    box <- round((quant-quant[1])*round(0.9*getOption("width"))/(quant[5]-quant[1]))
+    IQR <- box[4]-box[2]
+
+    cat(paste0("|",
+               paste0(rep(".", max(0, box[2]-2)),collapse = ""), "<",
+               paste0(rep("=", max(0, box[3]-box[2]-1)),collapse = ""), "*",
+               paste0(rep("=", max(0, box[4]-box[3]-1)),collapse = ""), ">",
+               paste0(rep(".", max(0, box[5]-box[4]-1)),collapse = ""), "|\n"))
+
+    cat("Legends: | min and max, <==  ==> IQR, * median \n")
+    if (box[5] > box[4]+1.5*IQR) {
+      cat("\nPotential outliers present in this variable\n")
+    }
+  }
+
+}

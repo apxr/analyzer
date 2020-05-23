@@ -1,8 +1,72 @@
-
-
+#' Find association between variables
+#'
+#' \code{association} finds association among all the variables in the data.
+#'
+#' This function calculates association value in three categoris -
+#' \itemize{
+#'  \item between continuous variables (using \code{CCassociation} function)
+#'  \item between categorical variables (using \code{QQassociation} function)
+#'  \item between continuous and categorical variables (using \code{CQassociation}
+#'   function)
+#' }
+#' For more details, look at the individual documentaion of
+#' \code{\link{CCassociation}}, \code{\link{QQassociation}},
+#' \code{\link{CQassociation}}
+#'
+#' @seealso
+#' \code{\link{CCassociation}} for Correlation between Continuous variables,
+#' \code{\link{QQassociation}} for Association between Categorical variables,
+#' \code{\link{CQassociation}} for Association between Continuous-Categorical variables
+#'
+#' @param tb tabular data
+#' @param categorical a vector specifying the names of categorical (character,
+#'   factor) columns
+#' @param method1 method for association between continuous-continuous
+#'   variables. values can be \code{"auto", "pearson",  "kendall", "spearman"}.
+#'   See details for more information.
+#' @param method2 method for association between categorical-categorical
+#'   variables. Values can be \code{"chisq", "cramers"}.
+#'   See details for more information.
+#' @param method3 method for association between continuous-categorical
+#'   variables. Values can be \code{"auto", "parametric", "non-parametric"}.
+#'   See details of \code{\link{CQassociation}} for more information.
+#'   Parametric does t-test while non-parametric
+#'   does 'Mann-Whitney’ test.
+#' @param normality_test_method method for normality test for a variable.
+#'   See details for more information. 'shapiro' or 'ad'
+#' @param use an optional character string giving a method for computing
+#'   association in the presence of missing values. This must be (complete or an
+#'   abbreviation of) one of the strings "everything", "all.obs",
+#'   "complete.obs", "na.or.complete", or "pairwise.complete.obs". If use is
+#'   "everything", NAs will propagate conceptually, i.e., a resulting value will
+#'   be NA whenever one of its contributing observations is NA. If use is
+#'   "all.obs", then the presence of missing observations will produce an error.
+#'   If use is "complete.obs" then missing values are handled by casewise
+#'   deletion (and if there are no complete cases, that gives an error).
+#'   "na.or.complete" is the same unless there are no complete cases, that gives
+#'   NA
+#' @param ... other parameters passed to \code{cor}, \code{CCassociation},
+#'   \code{CQassociation} and \code{QQassociation}
+#'
+#' @return A list of three tables:
+#' \describe{
+#'  \item{continuous}{correlation among all the continuous variables}
+#'  \item{categorical}{association value among all the categorical variables}
+#'  \item{continuous_categorical}{association value among}
+#'  continuous and categorical variables
+#' }
+#'
+#' @examples
+#' tb <- mtcars
+#' tb$cyl <- as.factor(tb$cyl)
+#' tb$vs  <- as.factor(tb$vs)
+#' association(tb, categorical = c("cyl", "vs"))
+#' rm(tb)
+#'
+#' @export
 association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  "kendall", "spearman"),
-                        method2 = c("chisq", "cramers"), method3 = c("auto", "parametric", "non-arametric"),
-                        normality_test_method = c("shapiro", "anderson-darling"),
+                        method2 = c("chisq", "cramers"), method3 = "auto",
+                        normality_test_method = c("shapiro", "ad"),
                         use = "everything", ...) {
 
   normality_test_method <- match.arg(normality_test_method)
@@ -46,7 +110,8 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
   if (!is.null(numtb)){
     method1 <- match.arg(method1)
     norm_test_all <- unlist(lapply(1:ncol(numtb), function(x, numtb) {
-      return(tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, names(numtb)[x]), error=function(e){
+      return(tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, names(numtb)[x],
+                                    onlyPval = TRUE), error=function(e){
         warning(paste0("Normality test failed for ", names(numtb)[x])); return(0)
         }))
     }, numtb))
@@ -55,7 +120,16 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
     if (method1=="auto"){
       cornumtb <- CCassociation(numtb, use, norm_test_all)
     }else {
-      CCwarning_for_norm(norm_test_all)
+      # Generating some warnings based on the normality tests
+      for (i in 1:length(norm_test_all)) {
+        if (norm_test_all[i]) {
+          warning(paste0("Variable ", names(norm_test_all[i]),
+                         " follows normality assumption, use parametric test (Pearson) for this variable"))
+        } else {
+          warning(paste0("Variable ", names(norm_test_all[i]),
+                         " doesn't follow normality assumption, use non-parametric test (Spearman / Kendall) for this variable"))
+        }
+      }
       cornumtb <- cor(numtb, method = method1, use = use)
     }
   }
@@ -73,64 +147,13 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
     colnames(r) <- colnames(factb)
   }
   # continuous - categorical ===================================================
-  continuous_cats <- NULL
+  continuous_categorical <- NULL
   if (!is.null(numtb) & !is.null(factb)){
-    method3 <- match.arg(method3)
-    continuous_cats <- CQassociation(numtb, factb, method3, use, normality_test_method)
+    continuous_categorical <- CQassociation(numtb, factb, method3, use, normality_test_method)
   }
 
   return(list(continuous = cornumtb,
               categorical = r,
-              continuous_cats = continuous_cats))
+              continuous_categorical = continuous_categorical))
 }
 
-
-
-norm_test_fun <- function(x, method, pval = 0.05, xn) {
-  if (length(x) > 5000) {
-    warning(paste0(xn, " is very large (>5000), normality test may not be accurate. Making method to 'Anderson-Darling'"))
-    method = "anderson"
-  }
-  if (length(x) < 3) {
-    warning(paste0(xn, " is very small (<3), normality test can't be performed."))
-    return(0)
-  }
-
-  if (method == "shapiro") {
-    return(shapiro.test(x)$p.value > pval)
-  } else {
-    return(ad.test_(x$p.value) > pval)
-  }
-}
-
-
-ad.test_ <- function (x){
-  DNAME <- deparse(substitute(x))
-  x <- sort(x[complete.cases(x)])
-  n <- length(x)
-  if (n < 8)
-    stop("sample size must be greater than 7")
-
-  logp1 <- pnorm( (x-mean(x))/sd(x), log.p=TRUE)
-  logp2 <- pnorm( -(x-mean(x))/sd(x), log.p=TRUE )
-  h <-  (2 * seq(1:n) - 1) * (logp1 + rev(logp2))
-
-  A <- -n - mean(h)
-  AA <- (1 + 0.75/n + 2.25/n^2) * A
-  if (AA < 0.2) {
-    pval <- 1 - exp(-13.436 + 101.14 * AA - 223.73 * AA^2)
-  }
-  else if (AA < 0.34) {
-    pval <- 1 - exp(-8.318 + 42.796 * AA - 59.938 * AA^2)
-  }
-  else if (AA < 0.6) {
-    pval <- exp(0.9177 - 4.279 * AA - 1.38 * AA^2)
-  }
-  else if (AA < 10) {
-    pval <- exp(1.2937 - 5.709 * AA + 0.0186 * AA^2)
-  }
-  else pval <- 3.7e-24
-  RVAL <- list(statistic = c(A = A), p.value = pval, method = "Anderson-Darling normality test",
-               data.name = DNAME)
-  return(RVAL)
-}

@@ -6,7 +6,6 @@
 .onLoad <- function(libname, pkgname) {
   op <- options()
   op.analyzer <- list(
-    analyzer.name = "Apurv Priyam",
     analyzer.desc.author = "Apurv Priyam <apurvpriyam@gmail.com> [aut, cre]",
     analyzer.desc.license = "MIT"
   )

@@ -42,7 +42,7 @@
 #'
 #' @export
 
-plotNA <- function(tb, order = T, limit = F, add_percent = T, row.level = F) {
+plotNA <- function(tb, order = T, limit = T, add_percent = T, row.level = F) {
   # plot1: number of missing
   NAcount <- data.frame(apply(tb, 2, function(x) sum(is.na(x))))
   NAcount$Variable <- row.names(NAcount)

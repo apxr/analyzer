@@ -1,5 +1,6 @@
 0. Explain
   - add other group when number of classes are too high for frequency table
+  - add factor levels in explain.factor
 
 1. Associations
   a. Conitnuous - Pearson, Spearman, Kendall, for non-parametrics (if pearson is required for binary, binary can be set as numeric and method = "Pearson")
@@ -23,7 +24,7 @@
 
 3. Stuffs from NonParametric stats and Regression class
 
-
+4. Norm_analyzer for normality checks including QQplots etc
 
 modifications -
 denisty plots - change Y with counts and remove y axis title

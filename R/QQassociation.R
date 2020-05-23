@@ -1,4 +1,66 @@
-QQassociation <- function(factb, use, method2) {
+#' Association (Correlation) between Categorical Variables
+#'
+#' \code{QQassociation} finds Association measure between all the variables in
+#' data with only categorical columns.
+#'
+#' This function measures the association between categorical variables using
+#' Chi Square test. This also returns Cramers V value which is a measure of
+#' association between two nominal variables, giving a value between 0 and +1
+#' (inclusive). Higher number indicates higher association. Note that, unlike
+#' Pearson correlation this doesn't give negative value.
+#'
+#' The relation between Cramer's V and Chi Sq test is
+#'
+#' \deqn{\sqrt{\frac{\chi ^2}{n*min(k-1,r-1))}}}
+#'
+#' where:
+#' \describe{
+#'  \item{X}{is derived from Pearson's chi-squared test}
+#'  \item{n}{is the grand total of observations}
+#'  \item{k}{being the number of columns}
+#'  \item{r}{being the number of rows}
+#' }
+#'
+#' The p-value for the significance of Cramer's V is the same one
+#' that is calculated using the Pearson's chi-squared test.
+#'
+#' @seealso
+#' \code{\link{association}} for association between any type of variables,
+#' \code{\link{CCassociation}} for Association between Continuous (numeric) variables,
+#' \code{\link{CQassociation}} for Association between Continuous-Categorical variables
+#'
+#' @param factb a data frame with all the categorical columns. This should
+#' have atleast two columns
+#' @param use an optional character string giving a method for computing
+#'   association in the presence of missing values. This must be (complete or an
+#'   abbreviation of) one of the strings "everything", "all.obs",
+#'   "complete.obs", "na.or.complete", or "pairwise.complete.obs". If use is
+#'   "everything", NAs will propagate conceptually, i.e., a resulting value will
+#'   be NA whenever one of its contributing observations is NA. If use is
+#'   "all.obs", then the presence of missing observations will produce an error.
+#'   If use is "complete.obs" then missing values are handled by casewise
+#'   deletion (and if there are no complete cases, that gives an error).
+#'   "na.or.complete" is the same unless there are no complete cases, that gives
+#'   NA
+#'
+#' @return a list of two tables with number of rows and column equal to number
+#' of columns in \code{factb}:
+#' \describe{
+#'  \item{chisq}{Table containing p-values of chi-square test}
+#'  \item{cramers}{Table containing Cramer's V}
+#' }
+#'
+#' @examples
+#' tb <- mtcars
+#' tb$cyl <- as.factor(tb$cyl)
+#' tb$vs  <- as.factor(tb$vs)
+#' factb  <- tb[, c("cyl","vs")]
+#' QQassociation(factb)
+#'
+#' QQassociation(factb, use = "complete.obs")
+#'
+#' @export
+QQassociation <- function(factb, use = "everything") {
 
   chiCor <- function(x, y) {
     tbl <- table(x, y)
@@ -44,5 +106,3 @@ QQassociation <- function(factb, use, method2) {
 
   return(list(chisq = r, cramers = cramerV))
 }
-
-# association(tb, categorical = c("cyl", "vs","gear"), use = "complete.obs", method2 = "cramers")

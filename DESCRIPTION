@@ -13,7 +13,8 @@ LazyData: true
 Imports:
     ggplot2,
     gridExtra,
-    dplyr
+    dplyr,
+    grid
 RoxygenNote: 7.1.0
 Suggests: 
     data.table,
