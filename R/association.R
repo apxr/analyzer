@@ -24,9 +24,6 @@
 #' @param method1 method for association between continuous-continuous
 #'   variables. values can be \code{"auto", "pearson",  "kendall", "spearman"}.
 #'   See details for more information.
-#' @param method2 method for association between categorical-categorical
-#'   variables. Values can be \code{"chisq", "cramers"}.
-#'   See details for more information.
 #' @param method3 method for association between continuous-categorical
 #'   variables. Values can be \code{"auto", "parametric", "non-parametric"}.
 #'   See details of \code{\link{CQassociation}} for more information.
@@ -50,10 +47,11 @@
 #'
 #' @return A list of three tables:
 #' \describe{
-#'  \item{continuous}{correlation among all the continuous variables}
-#'  \item{categorical}{association value among all the categorical variables}
-#'  \item{continuous_categorical}{association value among}
-#'  continuous and categorical variables
+#'  \item{continuous_corr}{correlation among all the continuous variables}
+#'  \item{continuous_pvalue}{Table containing p-value for the correlation test}
+#'  \item{categorical_cramers}{Cramer's V value among all the categorical variables}
+#'  \item{categorical_pvalue}{Chi Sq test p-value}
+#'  \item{continuous_categorical}{association value among continuous and categorical variables}
 #' }
 #'
 #' @examples
@@ -65,7 +63,7 @@
 #'
 #' @export
 association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  "kendall", "spearman"),
-                        method2 = c("chisq", "cramers"), method3 = "auto",
+                        method3 = "auto",
                         normality_test_method = c("shapiro", "ad"),
                         use = "everything", ...) {
 
@@ -119,6 +117,8 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
 
     if (method1=="auto"){
       cornumtb <- CCassociation(numtb, use, norm_test_all)
+      cornumtb_p <- cornumtb$r_pvalue
+      cornumtb <- cornumtb$r
     }else {
       # Generating some warnings based on the normality tests
       for (i in 1:length(norm_test_all)) {
@@ -131,20 +131,21 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
         }
       }
       cornumtb <- cor(numtb, method = method1, use = use)
+      cornumtb_p <- cor.mtest(numtb, conf.level = 0.95)
     }
   }
 
   # categorical =============================================================
   r <- NULL
   if (!is.null(factb)) {
-    method2 <- match.arg(method2)
-    if (method2 == "chisq") {
-      r <- QQassociation(factb, use)$chisq
-    } else if (method2 == "cramers") {
-      r <- QQassociation(factb, use)$cramers
-    }
+    cats <- QQassociation(factb, use)
+    r_pvalue <- cats$chisq
+    r <- cats$cramers
+
     rownames(r) <- colnames(factb)
     colnames(r) <- colnames(factb)
+    rownames(r_pvalue) <- colnames(factb)
+    colnames(r_pvalue) <- colnames(factb)
   }
   # continuous - categorical ===================================================
   continuous_categorical <- NULL
@@ -152,8 +153,10 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
     continuous_categorical <- CQassociation(numtb, factb, method3, use, normality_test_method)
   }
 
-  return(list(continuous = cornumtb,
-              categorical = r,
+  return(list(continuous_corr = cornumtb,
+              continuous_pvalue = cornumtb_p,
+              categorical_cramers = r,
+              categorical_pvalue = r_pvalue,
               continuous_categorical = continuous_categorical))
 }
 

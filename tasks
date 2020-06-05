@@ -1,12 +1,14 @@
 0. Explain
   - add other group when number of classes are too high for frequency table
   - add factor levels in explain.factor
+  - add histograms on console for the numerical
 
 1. Associations
   a. Conitnuous - Pearson, Spearman, Kendall, for non-parametrics (if pearson is required for binary, binary can be set as numeric and method = "Pearson")
   b. Categorical - chi sq, Cramer's V, Kendall, Spearman for ordinal (passed as numeric type in order, with variable name in categorial argument)
   c. Continous - Categorical
 
+  - pvalue for CC association
   - Make option to do method selection at variable pair level
 
 2. Plots

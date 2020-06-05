@@ -32,9 +32,12 @@
 #'  column follows normality assumption, otherwise FALSE. This should have
 #'  TRUE or FALSE for all the columns present in \code{numtb}
 #'
-#' @return a table of correleations among the variables with number or
-#' rows and column same as the number of columns in \code{numtb}.
-#'
+#' @return a list of two tables with number of rows and column equal to number
+#' of columns in \code{numtb}:
+#' \describe{
+#'  \item{r}{Table containing correlation values}
+#'  \item{r_pvalue}{Table containing p-value for the correlation test}
+#' }
 #' @examples
 #' CCassociation(mtcars)
 #'
@@ -47,18 +50,18 @@
 #' @export
 CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
 
-  CC_ <- function(x, y, use, varnames, norm_test) {
+  CC_ <- function(x, y, varnames, norm_test) {
 
     if (norm_test) {
       warning(paste0("Variable ", paste0(varnames, collapse = ", "),
                      " follows normality assumptions. Doing parameteric test (Pearson) for variables: ",
                      paste0(varnames, collapse = ", ")))
-      return(cor(x, y, use=use, method = "pearson"))
+      return(cor.test(x, y, method = "pearson"))
     } else {
       warning(paste0("Variable ", paste0(varnames, collapse = ", "),
                      " doesn't follow normality assumptions. Doing non-parameteric test (Spearman) for variables: ",
                      paste0(varnames, collapse = ", ")))
-      return(cor(x, y, use=use, method="spearman"))
+      return(cor.test(x, y, method="spearman"))
     }
 
   }
@@ -72,6 +75,10 @@ CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
   rownames(r) <- colnames(numtb)
   colnames(r) <- colnames(numtb)
 
+  r_pvalue <- matrix(NA, nrow = ncx, ncol = ncx)
+  rownames(r_pvalue) <- colnames(numtb)
+  colnames(r_pvalue) <- colnames(numtb)
+
   for (i in seq_len(ncx)) {
 
     for (j in seq_len(i)) {
@@ -81,9 +88,12 @@ CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
       if (use == "everything") {
         if ((sum(is.na(x))+sum(is.na(y))) > 0) {
           r[i,j] <- r[j,i] <- NA
+          r_pvalue[i,j] <- r_pvalue[j,i] <- NA
         } else {
           norm_test <- all(norm_test_all[c(names(numtb)[i], names(numtb)[j])])
-          r[i,j] <- r[j, i] <- CC_(x, y, use, c(names(numtb)[i], names(numtb)[j]), norm_test)
+          a <- CC_(x, y, c(names(numtb)[i], names(numtb)[j]), norm_test)
+          r[i,j] <- r[j, i] <- a$estimate
+          r_pvalue[i,j] <- r_pvalue[j, i] <- a$p.value
         }
       } else {
         ok = complete.cases(x, y)
@@ -93,15 +103,18 @@ CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
                  '", all the observations were missing. Select use = "na.or.complete" for such case.')
           } else if (use == "na.or.complete") {
             r[i,j] <- r[j,i] <- NA
+            r_pvalue[i,j] <- r_pvalue[j,i] <- NA
           }
         } else {
           x <- x[ok]
           y <- y[ok]
           norm_test <- all(norm_test_all[c(names(numtb)[i], names(numtb)[j])])
-          r[i,j] <- r[j, i] <- CC_(x, y, use, c(names(numtb)[i], names(numtb)[j]), norm_test)
+          a <- CC_(x, y, c(names(numtb)[i], names(numtb)[j]), norm_test)
+          r[i,j] <- r[j, i] <- a$estimate
+          r_pvalue[i,j] <- r_pvalue[j, i] <- a$p.value
         }
       }
     }
   }
-  return(r)
+  return(list(r = r, r_pvalue = r_pvalue))
 }

@@ -2,27 +2,38 @@
 % Please edit documentation in R/explainer.R
 \name{explainer}
 \alias{explainer}
-\title{Show details of the data frame}
+\title{Generic explainer}
 \usage{
-explainer(df, ...)
+explainer(X, xname = NULL, ...)
 }
 \arguments{
-\item{df}{A data.frame}
+\item{X}{a data.frame or a vector}
 
-\item{...}{parameters for explain}
+\item{xname}{name of the data to be printed. If missing then the
+name of variable passed as \code{X} will be used}
+
+\item{...}{other parameters required for other methods of \code{explainer}
+To see the parameters for numeric methods, use \code{?explainer.numeric} and
+similarly for other methods (\code{?explainer.factor} etc.)}
 }
 \value{
-Prints details of the dataset which includes: dataset name,
-type, number of columns, rows and unique rows. Also prints output of
-\code{explain} for all the columns. Returns nothing.
+Prints the information on the console. For print information for
+the individual methods, see their documentation. Returns nothing.
 }
 \description{
-\code{explainer} shows detail of all the columns of the data
+Generic function for printing the details of data. Based on
+the data type, this calls the appropriate method.
 }
 \details{
-This function uses \code{explain} on each column.
+Current methods for \code{explainer} are for data.framem, numeric, integer, character
+and factor vectors. To get the list of all available methods type the
+command \code{methods(explainer)}.
 }
 \examples{
+# for numeric
 explainer(mtcars)
+explainer(mtcars$mpg) # same as explainer.numeric(mtcars$mpg)
+# for factor
+explainer(as.factor(mtcars$cyl)) # same as explainer.factor(as.factor(mtcars$cyl))
 
 }

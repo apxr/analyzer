@@ -4,7 +4,7 @@
 \alias{plotNA}
 \title{Missing value visualization using ggplot2}
 \usage{
-plotNA(tb, order = T, limit = F, add_percent = T, row.level = F)
+plotNA(tb, order = T, limit = T, add_percent = T, row.level = F)
 }
 \arguments{
 \item{tb}{a data.frame}

@@ -60,7 +60,9 @@ plotNA <- function(tb, order = T, limit = T, add_percent = T, row.level = F) {
     theme_minimal() +
     coord_flip()
 
-  if (!limit) {
+  if (limit) {
+    p1 <- p1 + ylim(0, ceiling(1.2*max(NAcount$Missing)))
+  } else {
     p1 <- p1 + ylim(0,nrow(tb))
   }
   if (add_percent) {

@@ -62,7 +62,7 @@ CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-p
   method3 <- match.arg(method3)
 
   CQ_ <- function(x,y,method3,varnames) {
-    uniqY <- as.character(unique(y))
+    uniqY <- unique(y)
     if (length(uniqY)==1){
       warning(paste0("Setting association of ", paste0(varnames, collapse = ", "),
                      " as NA because ", varnames[2], " has only 1 unique value."))
