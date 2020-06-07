@@ -12,7 +12,7 @@
 #'
 #' @param x a numeric vector
 #' @param method \code{shapiro} for Shapiro-Wilk test or
-#' \code{'ad'} for 'Anderson-Darling' test of normality
+#' \code{'anderson'} for 'Anderson-Darling' test of normality
 #' @param pval pvalue cutoff for calling test significant
 #' @param xn vector name
 #' @param onlyPval TRUE if only TRUE/FALSE is required
@@ -26,7 +26,7 @@
 #'
 #' @export
 norm_test_fun <- function(x, method = "anderson", pval = 0.05, xn = 'x', onlyPval = FALSE) {
-  if (!method %in% c("shapiro", "ad")) {
+  if (!method %in% c("shapiro", "anderson")) {
     warning("Method should only be 'shapiro' or 'ad'. Setting method as 'ad'")
     method <- "ad"
   }

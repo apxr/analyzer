@@ -8,7 +8,6 @@ association(
   tb,
   categorical = NULL,
   method1 = c("auto", "pearson", "kendall", "spearman"),
-  method2 = c("chisq", "cramers"),
   method3 = "auto",
   normality_test_method = c("shapiro", "ad"),
   use = "everything",
@@ -23,10 +22,6 @@ factor) columns}
 
 \item{method1}{method for association between continuous-continuous
 variables. values can be \code{"auto", "pearson",  "kendall", "spearman"}.
-See details for more information.}
-
-\item{method2}{method for association between categorical-categorical
-variables. Values can be \code{"chisq", "cramers"}.
 See details for more information.}
 
 \item{method3}{method for association between continuous-categorical
@@ -56,10 +51,11 @@ NA}
 \value{
 A list of three tables:
 \describe{
- \item{continuous}{correlation among all the continuous variables}
- \item{categorical}{association value among all the categorical variables}
- \item{continuous_categorical}{association value among}
- continuous and categorical variables
+ \item{continuous_corr}{correlation among all the continuous variables}
+ \item{continuous_pvalue}{Table containing p-value for the correlation test}
+ \item{categorical_cramers}{Cramer's V value among all the categorical variables}
+ \item{categorical_pvalue}{Chi Sq test p-value}
+ \item{continuous_categorical}{association value among continuous and categorical variables}
 }
 }
 \description{

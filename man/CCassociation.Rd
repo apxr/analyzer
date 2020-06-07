@@ -27,8 +27,12 @@ column follows normality assumption, otherwise FALSE. This should have
 TRUE or FALSE for all the columns present in \code{numtb}}
 }
 \value{
-a table of correleations among the variables with number or
-rows and column same as the number of columns in \code{numtb}.
+a list of two tables with number of rows and column equal to number
+of columns in \code{numtb}:
+\describe{
+ \item{r}{Table containing correlation values}
+ \item{r_pvalue}{Table containing p-value for the correlation test}
+}
 }
 \description{
 \code{CCassociation} finds correlation between all the variables in data
