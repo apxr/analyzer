@@ -20,4 +20,5 @@ Suggests:
     data.table,
     testthat,
     tidyr,
-    reshape2
+    reshape2,
+    rmarkdown

@@ -79,33 +79,33 @@ plotNA <- function(tb, order = T, limit = T, add_percent = T, row.level = F) {
 
   # plot2: vars*rows plot
   if (row.level) {
-    # print(ggplot_build(p1)$layout$panel_params[[1]]$y.labels)
-    level <- tryCatch(ggplot_build(p1)$layout$panel_params[[1]]$y.labels,
-                      error = function(e){return(colnames(tb))})
-
-    plot_na_ <- function(tb2, level) {
-      tb2$isNA <- is.na(tb2$value)
-      p2 <- ggplot(tb2, aes(variable, index, fill = isNA)) +
-        geom_raster(alpha=1) +
-        scale_fill_manual(name = "",
-                          values = c('#ebebeb', 'tomato3'),
-                          labels = c("Present", "Missing")) +
-        scale_x_discrete(limits = level) +
-        labs(x = "Variable",
-             y = "Row Number", title = "Missing values in rows") +
-        coord_flip() +
-        theme_minimal() +
-        theme(legend.position = "bottom",
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.border = element_blank(),
-              panel.background = element_blank())
-      return(p2)
-    }
-    tb <- data.frame(tb)
-    tb$index <- 1:nrow(tb)
     # check for reshape2 package. only then make this plot
     if (requireNamespace("reshape2", quietly = TRUE)) {
+      level <- tryCatch(ggplot_build(p1)$layout$panel_params[[1]]$y.labels,
+                        error = function(e){return(colnames(tb))})
+
+      plot_na_ <- function(tb2, level) {
+        tb2$isNA <- is.na(tb2$value)
+        p2 <- ggplot(tb2, aes(variable, index, fill = isNA)) +
+          geom_raster(alpha=1) +
+          scale_fill_manual(name = "",
+                            values = c('#ebebeb', 'tomato3'),
+                            labels = c("Present", "Missing")) +
+          scale_x_discrete(limits = level) +
+          labs(x = "Variable",
+               y = "Row Number", title = "Missing values in rows") +
+          coord_flip() +
+          theme_minimal() +
+          theme(legend.position = "bottom",
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.border = element_blank(),
+                panel.background = element_blank())
+        return(p2)
+      }
+      tb <- data.frame(tb)
+      tb$index <- 1:nrow(tb)
+
       tb <- reshape2::melt(tb, id.vars = "index")
       p2 <- plot_na_(tb, level)
       p1 <- gridExtra::arrangeGrob(p1, p2, layout_matrix = cbind(1,1,2,2,2))
@@ -113,6 +113,7 @@ plotNA <- function(tb, order = T, limit = T, add_percent = T, row.level = F) {
       warning("To make row level plot, please install 'reshape2' library")
     }
   }
+
   # setting the class
   class(p1) <- c("analyzerPlot", class(p1))
   return(p1)

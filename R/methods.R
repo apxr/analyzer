@@ -14,6 +14,11 @@
 #'
 #' @export
 plot.analyzerPlot <- function(x, ...) {
+  # removing the 'analyzerPlot' class from 'x' to prevent it from recurssion
+  xclass <- class(x)
+  xclass <- setdiff(xclass, "analyzerPlot")
+  class(x) <- xclass
+  # clearing the canvas and drawing the plot
   grid.newpage()
   grid.draw(x)
 }

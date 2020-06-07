@@ -162,7 +162,7 @@ freqTable <- function(Value, limit = NULL) {
   }
 
   bars <- unlist(lapply(out$Proportion, function(x, maxperc) {
-    count = 100*round(x/2.5)/maxperc
+    count = round((100*x)/(2.5*maxperc))
     return(paste0("|",
                   paste0(rep("*", count),collapse = ""),
                   paste0(rep(".", 40-count),collapse = ""),

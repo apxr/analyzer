@@ -7,8 +7,6 @@ corrplot(corr_all$continuous_corr, p.mat = corr_all$continuous_pvalue, sig.level
 ```
 The above correlations are either Pearson or Spearman, decided by the function based on the normality tests. A value close to 0 means no linear correlation between the variables. As values increases towards +1, the linear positive correlation increases (one variable increases as other increases). Similarly, as value decreases towards -1, the linear negative correlation increases (as one variable increases, other decreases). The insignificant correlation (based on p-value) are crossed.
 
-From above table, we can conclude that there are highly correlated variables (eg, disp and hp)
-
 ##### Between 2 categorical variables
 Association can be measured between categorical variables using the chi-square test of independence on two-way contingency tables. A small p-value indicates that some association between the variables is present. Using the Chi-Square test statistic a measure of association can be calculated which is known as Cramer's V. This gives a value between 0 to 1. Like correlation we can measure the magnitude of association using Cramer's V.
 
@@ -16,10 +14,10 @@ The Cramer's V can be calculated using the Chi-Square test statistic using:
 
 $$V = \sqrt{\frac{\chi ^2}{n*min(k-1,r-1))}}$$
 
-Where:  
-**$\chi ^{2}$** is derived from Pearson's chi-squared test  
-**$n$** is the grand total of observations  
-**$k$** is the number of columns  
+Where:
+**$\chi ^{2}$** is derived from Pearson's chi-squared test
+**$n$** is the grand total of observations
+**$k$** is the number of columns
 **$r$** is the number of rows.
 
 ```{r QQ}

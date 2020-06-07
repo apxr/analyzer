@@ -1,0 +1,25 @@
+##### **Plots and summary of the variables**
+```{r, echo = FALSE}
+shinyApp(
+
+  ui = fluidPage(
+    selectInput("variable", "Variable:",
+                choices = colnames(tb)),
+    verbatimTextOutput("explain"),
+
+    plotOutput("plottr")
+  ),
+
+  server = function(input, output) {
+    output$explain <- renderPrint({
+      explainer(tb[,input$variable], xname = input$variable)
+    })
+
+    output$plottr = renderPlot({
+      variable_plots[[input$variable]]
+    })
+  },
+
+  options = list(height = 700)
+)
+```
