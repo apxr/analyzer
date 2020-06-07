@@ -1,0 +1,336 @@
+---
+title: Report
+params:
+  consoleWidth: 80
+  yclass: factor
+  yvar: cyl
+output:
+  html_document:
+    df_print: paged
+    theme: journal
+    toc: yes
+    toc_depth: 4
+    toc_float: no
+  pdf_document:
+    toc: yes
+    toc_depth: 4
+  word_document:
+    toc: yes
+    toc_depth: 4
+
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=5, fig.path="Figs/",fig.fullwidth=TRUE,
+                      warning=FALSE, message=FALSE, comment = "")
+options(width = params$consoleWidth)
+```
+
+### INTRODUCTION 
+This project is a bare bone exploration of the data mtcars.csv. Make the changes as required.
+
+```{r libraries_load}
+# Loading the libraries
+library(analyzer)
+library(dplyr)
+library(corrplot)
+```
+
+***
+
+### DATA 
+First, let's load the data and take a look at its dimension and first few rows.
+```{r data_load}
+tb <- read.csv('~/Documents/mtcars.csv')
+
+# Defining factor variables 
+factor_vars <- c('cyl', 'vs', 'gear')
+
+# Converting categorical variables into factors
+for (i in factor_vars) {
+  tb[,i] <- as.factor(tb[,i])
+}
+```
+
+The dimension of data is
+```{r data_dim, echo=F}
+cat(paste0('Columns: ', prettyNum(ncol(tb), big.mark = ','), '
+Rows: ', prettyNum(nrow(tb), big.mark = ','), '
+Unique Rows: ', prettyNum(length(unique(tb)), big.mark = ',')))
+```
+
+```{r data_head}
+head(tb)
+```
+
+***
+
+
+#### MISSING VALUES 
+By plotting the proportion of missing values we can see see which variables has the maximum
+counts of missing values. From the plot we can see that column 'mpg' has the highest number
+of missing values. Rest columns doesn't have any missing values.
+
+```{r NA_plots}
+# Plotting the missing values
+analyzer::plotNA(tb, row.level = TRUE)
+```
+
+In the right plot we can see how missing values (shown in red color) are spread across all the
+columns and all the rows.
+
+***
+
+
+####  VARIABLE EXPLORATION 
+In this section all the individual variables are being explored.
+Variable **'`r params$yvar`'** is selected as the response (or dependent) variable. While,
+the remaining variables are selected as the explanatory (or independent) variables.
+
+First, let's create and save all the plots:
+```{r save_plots_vars}
+variable_plots <- plottrWrapper(tb, yvar = 'cyl',
+                                yclass = 'factor', inc.density = T)
+```
+
+##### **Variable: mpg**
+```{r variable_mpg}
+explainer(tb$mpg)
+
+# Plot
+plot(variable_plots$mpg)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = mpg)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$mpg)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+##### **Variable: cyl**
+```{r variable_cyl}
+explainer(tb$cyl)
+
+# Plot
+plot(variable_plots$cyl)
+```
+
+##### **Variable: disp**
+```{r variable_disp}
+explainer(tb$disp)
+
+# Plot
+plot(variable_plots$disp)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = disp)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$disp)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+##### **Variable: hp**
+```{r variable_hp}
+explainer(tb$hp)
+
+# Plot
+plot(variable_plots$hp)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = hp)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$hp)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+##### **Variable: drat**
+```{r variable_drat}
+explainer(tb$drat)
+
+# Plot
+plot(variable_plots$drat)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = drat)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$drat)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+##### **Variable: wt**
+```{r variable_wt}
+explainer(tb$wt)
+
+# Plot
+plot(variable_plots$wt)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = wt)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$wt)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+##### **Variable: qsec**
+```{r variable_qsec}
+explainer(tb$qsec)
+
+# Plot
+plot(variable_plots$qsec)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = qsec)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$qsec)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+##### **Variable: vs**
+```{r variable_vs}
+explainer(tb$vs)
+
+# Plot
+plot(variable_plots$vs)
+```
+
+##### **Variable: am**
+```{r variable_am}
+explainer(tb$am)
+
+# Plot
+plot(variable_plots$am)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = am)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$am)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+##### **Variable: gear**
+```{r variable_gear}
+explainer(tb$gear)
+
+# Plot
+plot(variable_plots$gear)
+```
+
+##### **Variable: carb**
+```{r variable_carb}
+explainer(tb$carb)
+
+# Plot
+plot(variable_plots$carb)
+```
+
+**Normality test**
+```{r, echo = FALSE}
+# QQ plot
+ggplot(tb, aes(sample = carb)) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
+
+# Normality assumption test
+nt <- norm_test_fun(tb$carb)
+```
+
+The `r nt$method` has a p-value of **`r nt$p.value`**.
+Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+'p-value is not below the significance level (0.05), we do not have sufficient evidence to')` reject the null hypothesis.
+Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')` the normal distribution**.
+
+#### CORRELATION & ASSOCIATION 
+In general there can be three types of association based on the data type of variables -
+1. Between 2 continuous (numeric) variables
+2. Between 2 categorical variables
+3. Between 1 continuous and 1 categorical variables
+
+In this section, each type will be analyzed separately. **association** function can be used to calculate these automatically.
+
+```{r association}
+corr_all <- association(tb, categorical = c('cyl', 'vs', 'gear'))
+```
+
+##### Between 2 continuous (numeric) variables
+
+For this case, the **association** function internally utilizes the **cor** function. Since there are some variables which may not follow the normality assumption, we will keep the method as 'auto'. This will assign the method automatically to all the variables pair based on normality tests.
+
+```{r CC}
+corrplot(corr_all$continuous_corr, p.mat = corr_all$continuous_pvalue, sig.level = .2)
+```
+The above correlations are either Pearson or Spearman, decided by the function based on the normality tests. A value close to 0 means no linear correlation between the variables. As values increases towards +1, the linear positive correlation increases (one variable increases as other increases). Similarly, as value decreases towards -1, the linear negative correlation increases (as one variable increases, other decreases). The insignificant correlation (based on p-value) are crossed.
+
+##### Between 2 categorical variables
+Association can be measured between categorical variables using the chi-square test of independence on two-way contingency tables. A small p-value indicates that some association between the variables is present. Using the Chi-Square test statistic a measure of association can be calculated which is known as Cramer's V. This gives a value between 0 to 1. Like correlation we can measure the magnitude of association using Cramer's V.
+
+The Cramer's V can be calculated using the Chi-Square test statistic using:
+
+$$V = \sqrt{\frac{\chi ^2}{n*min(k-1,r-1))}}$$
+
+Where:
+**$\chi ^{2}$** is derived from Pearson's chi-squared test
+**$n$** is the grand total of observations
+**$k$** is the number of columns
+**$r$** is the number of rows.
+
+```{r QQ}
+corrplot(corr_all$categorical_cramers, p.mat = corr_all$categorical_pvalue, sig.level = .2)
+```
+
+One thing to note is that Cramer's V doesn't give direction of association using negative and positive values like Pearson / Spearman correlation. But this only give magnitude of association.
+
+##### Between 1 continuous and 1 categorical variables
