@@ -31,9 +31,25 @@ GenerateReport <- function(dtpath, catVars, yvar = NULL, yclass = NULL, title = 
                            output_format = "html_document", tempDir = file.path(getwd(), "temp"),
                            interactive.plots = FALSE) {
 
-  tx <- GenerateReport_(dtpath, catVars, yvar, yclass, tempDir = tempDir, title = title,
-                        interactive.plots = interactive.plots)
+  # reading the data to get the column names
+  tb_ <- read.csv(dtpath)
+  columns <- colnames(tb_)
+
+  # Creating the .rmd file
+  # tx <- GenerateReport_(dtpath, catVars, yvar, yclass, tempDir = tempDir, title = title,
+  #                       interactive.plots = interactive.plots, columns = columns)
+
+  tx <- tryCatch(GenerateReport_(dtpath, catVars, yvar, yclass, tempDir = tempDir, title = title,
+                                 interactive.plots = interactive.plots, columns = columns),
+                 error=function(e){
+                   return("failed")
+                 })
+
+  if (tx=="failed") return(FALSE)
+
   cat(tx, file = file.path(tempDir, "report.rmd"))
+
+  # Converting into html/interactive report
   if (requireNamespace("rmarkdown", quietly = TRUE)) {
     rmarkdown::render(input = file.path(tempDir, "report.rmd"), output_format = output_format)
     if (interactive.plots) {
@@ -42,11 +58,12 @@ GenerateReport <- function(dtpath, catVars, yvar = NULL, yclass = NULL, title = 
   } else {
     stop("Please install library 'rmarkdown' to create the html/pdf file.")
   }
-
+  return(TRUE)
 }
 
 
-GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, interactive.plots) {
+GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, interactive.plots,
+                            columns) {
 
   dtname <- basename(dtpath)
 
@@ -66,10 +83,10 @@ GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, inter
   missingInfo <- generateMissingInfo()
 
   # Variable Exploration
-  variableEx <- generateVarEx(dtpath, catVars, yvar = yvar, yclass = yclass, interactive.plots = interactive.plots)
+  variableEx <- generateVarEx(columns, catVars, yvar = yvar, yclass = yclass, interactive.plots = interactive.plots)
 
   # Correlation
-  associationInfo <- getAssociation(catVars)
+  associationInfo <- getAssociation(columns, catVars)
 
   # combining all the parts
   tx <- paste0(header,
@@ -82,7 +99,8 @@ GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, inter
                "\n\n####  VARIABLE EXPLORATION \n",
                variableEx,
                "\n\n#### CORRELATION & ASSOCIATION \n",
-               associationInfo)
+               associationInfo,
+               "\n\n#### VARIABLE SELECTION \n")
 
   return(tx)
 
@@ -139,6 +157,7 @@ generateIntro <- function(dtname) {
 library(analyzer)
 library(dplyr)
 library(corrplot)
+library(ggplot2)
 ```
 
 ***')
@@ -156,7 +175,7 @@ dtpath,
 
   # declaring categorical variables
   if (is.null(catVars)){
-    cattx <- "# No categorical variables"
+    cattx <- "# No categorical variables\n```\n"
   } else {
     cattx <- paste0("factor_vars <- c('", paste0(catVars, collapse = "', '"), "')")
     cattx <- paste0(
@@ -207,11 +226,7 @@ columns and all the rows.
 
 }
 
-generateVarEx <- function(dtpath, catVars, yvar, yclass, interactive.plots) {
-
-  # reading the data to get the column names
-  tb_ <- read.csv(dtpath)
-  columns <- colnames(tb_)
+generateVarEx <- function(columns, catVars, yvar, yclass, interactive.plots) {
 
   tx <- paste0(
 "In this section all the individual variables are being explored.
@@ -263,7 +278,7 @@ Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does no
   return(tx)
 }
 
-getAssociation <- function(catVars) {
+getAssociation <- function(columns, catVars) {
   out <- paste0(
 "In general there can be three types of association based on the data type of variables -
 1. Between 2 continuous (numeric) variables
@@ -276,7 +291,33 @@ In this section, each type will be analyzed separately. **association** function
 corr_all <- association(tb, categorical = ",
 paste0("c('", paste0(catVars, collapse = "', '"), "'))"),
 "\n```")
-  tx1 <- paste(readLines(file.path("report_temp","association_text.txt")), collapse="\n")
-  out <- paste0(out, "\n\n", tx1)
+
+  numVars <- setdiff(columns, catVars)
+
+  # for CC
+  if (length(numVars) > 0) {
+    tx1 <- paste(readLines(file.path("report_temp","QQ_text.txt")), collapse="\n")
+    out <- paste0(out, "\n\n", tx1)
+  } else {
+    out <- paste0(out, "\n\n", "##### Between 2 continuous (numeric) variables\n\n",
+                  "**No continuous variable present**")
+  }
+  # for CC
+  if (length(catVars) > 0) {
+    tx1 <- paste(readLines(file.path("report_temp","CC_text.txt")), collapse="\n")
+    out <- paste0(out, "\n\n", tx1)
+  } else {
+    out <- paste0(out, "\n\n", "##### Between 2 categorical (factor) variables\n\n",
+                  "**No continuous variable present**")
+  }
+  # CQ
+  if (length(catVars) > 0 & length(numVars) > 0) {
+    tx1 <- paste(readLines(file.path("report_temp","CQ_text.txt")), collapse="\n")
+    out <- paste0(out, "\n\n", tx1)
+  } else {
+    out <- paste0(out, "\n\n", "##### Between 1 continuous and 1 categorical variables\n\n",
+                  "**No such combination of variables present**")
+  }
+
   return(out)
 }

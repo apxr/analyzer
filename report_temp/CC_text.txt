@@ -1,0 +1,19 @@
+##### Between 2 categorical variables
+
+Association can be measured between categorical variables using the chi-square test of independence on two-way contingency tables. A small p-value indicates that association is present between the variables. Using the Chi-Square test statistic a measure of association can be calculated which is known as Cramer's V. This normalized measure varies from a minimum value of 0 when x and y are statistically independent to a maximum value of 1 when one variable is perfectly predictable from the other. Like correlation we can measure the magnitude of association using Cramer's V.
+
+The Cramer's V can be calculated using the Chi-Square test statistic using:
+
+$$V = \sqrt{\frac{\chi ^2}{n*min(k-1,r-1))}}$$
+
+Where:
+**$\chi ^{2}$** is derived from Pearson's chi-squared test
+**$n$** is the grand total of observations
+**$k$** is the number of columns
+**$r$** is the number of rows.
+
+```{r QQ}
+corrplot(corr_all$categorical_cramers, p.mat = corr_all$categorical_pvalue, sig.level = .2)
+```
+
+One thing to note is that Cramer's V doesn't give direction of association using negative and positive values like Pearson / Spearman correlation. But this only give magnitude of association. The insignificant association (based on p-value) are crossed out  at the desired level of significance (0.2).

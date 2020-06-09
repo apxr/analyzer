@@ -1,0 +1,10 @@
+##### Between 2 continuous (numeric) variables
+
+For this case, the **association** function internally utilizes the **cor** function. Since there are some variables which may not follow the normality assumption, we will keep the method as 'auto'. This will assign the method automatically to all the variables pair based on normality tests.
+
+```{r CC}
+corrplot(corr_all$continuous_corr, p.mat = corr_all$continuous_pvalue, sig.level = .2)
+```
+The above correlations are either Pearson or Spearman, decided by the function based on the normality tests. A value close to 0 means no linear correlation between the variables. As values increases towards +1, the linear positive correlation increases (one variable increases as other increases). Similarly, as value decreases towards -1, the linear negative correlation increases (as one variable increases, other decreases). The insignificant correlation (based on p-value) are crossed out  at the desired level of significance (0.2).
+
+
