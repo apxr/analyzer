@@ -57,9 +57,10 @@
 #'
 #' @export
 CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-parametric"),
-                          use = "everything", normality_test_method = "anderson") {
+                          use = "everything", normality_test_method = c("ks", "anderson", "shapiro")) {
 
   method3 <- match.arg(method3)
+  normality_test_method <- match.arg(normality_test_method)
 
   CQ_ <- function(x,y,method3,varnames) {
     uniqY <- unique(y)
@@ -202,5 +203,5 @@ CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-p
     }
   }
 
-  return(r)
+  return(t(r))
 }

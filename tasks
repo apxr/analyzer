@@ -26,7 +26,7 @@
 
 3. Stuffs from NonParametric stats and Regression class
 
-4. Norm_analyzer for normality checks including QQplots etc
+4. Add outlier using leverage code and in report
 
 modifications -
 denisty plots - change Y with counts and remove y axis title

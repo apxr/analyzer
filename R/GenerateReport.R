@@ -8,12 +8,13 @@
 #' @param dtpath dataset path
 #' @param catVars vector of categorical variables names
 #' @param yvar y variable name if present else \code{NULL}
-#' @param yclass class of y variable, else \code{NULL}
+#' @param model class of y variable (\code{numeric} or \code{factor}), else \code{NULL}
 #' @param title Title of the generated report
 #' @param output_format output report format. \code{'html_documennt'} for
 #' html file.
 #' @param tempDir Directory where the output files needs to be stored.
 #' @param interactive.plots for interactive variable exploration
+#' @param include.vars include only these variables from the full data
 #'
 #' @return creates a rmarkdown and html/pdf file
 #'
@@ -22,50 +23,72 @@
 #' \dontrun{
 #' # Assigning the temporary folder in Documnets/temp fodler
 #' GenerateReport(dtpath = "~/Documents/mtcars.csv", catVars = catVars,
-#'                yvar = "cyl", yclass = "factor", output_format = "html_document",
+#'                yvar = "cyl", model = "binClass", output_format = "html_document",
 #'                title = "Report", tempDir = "~/Documents/temp",
 #'                interactive.plots = FALSE)
 #' }
 #' @export
-GenerateReport <- function(dtpath, catVars, yvar = NULL, yclass = NULL, title = "Report",
-                           output_format = "html_document", tempDir = file.path(getwd(), "temp"),
-                           interactive.plots = FALSE) {
+GenerateReport <- function(dtpath, catVars, yvar = NULL, model = 'linReg', title = "Report",
+                           output_format = 'html_document', tempDir = file.path(getwd(), "temp"),
+                           normality_test_method = "ks",
+                           interactive.plots = FALSE, include.vars = NULL) {
 
   # reading the data to get the column names
-  tb_ <- read.csv(dtpath)
-  columns <- colnames(tb_)
+  if (requireNamespace("data.table", quietly = TRUE)) {
+    tb_ <- data.table::fread(dtpath)
+  } else {
+    tb_ <- read.csv(dtpath)
+  }
+
+  if (is.null(model)) {
+    if (!is.null(yvar)) {
+      stop("If yvar is not NULL then model parameter is required and can't be NULL")
+    } else {
+      model <- "linReg"
+    }
+  }
+  if (!requireNamespace("MASS", quietly = TRUE) & !is.null(model)) {
+    stop("MASS library is required for the variable selection part")
+  }
+
+  if (!requireNamespace("nnet", quietly = TRUE) & model == "multiClass") {
+    stop("nnet library is required for multiclass classification")
+  }
 
   # Creating the .rmd file
-  # tx <- GenerateReport_(dtpath, catVars, yvar, yclass, tempDir = tempDir, title = title,
-  #                       interactive.plots = interactive.plots, columns = columns)
-
-  tx <- tryCatch(GenerateReport_(dtpath, catVars, yvar, yclass, tempDir = tempDir, title = title,
-                                 interactive.plots = interactive.plots, columns = columns),
-                 error=function(e){
-                   return("failed")
-                 })
-
-  if (tx=="failed") return(FALSE)
+  tx <- GenerateReport_(dtpath, catVars, yvar, model, tempDir = tempDir, title = title,
+                        normality_test_method = normality_test_method,
+                        interactive.plots = interactive.plots, df = tb_)
 
   cat(tx, file = file.path(tempDir, "report.rmd"))
 
   # Converting into html/interactive report
-  if (requireNamespace("rmarkdown", quietly = TRUE)) {
-    rmarkdown::render(input = file.path(tempDir, "report.rmd"), output_format = output_format)
-    if (interactive.plots) {
-      rmarkdown::run(file = file.path(tempDir, "report.rmd"))
+  if (!is.null(output_format)) {
+    if (requireNamespace("rmarkdown", quietly = TRUE)) {
+      rmarkdown::render(input = file.path(tempDir, "report.rmd"), output_format = output_format)
+    } else {
+      stop("Please install library 'rmarkdown' to create the html/pdf file.")
     }
-  } else {
-    stop("Please install library 'rmarkdown' to create the html/pdf file.")
   }
+
+  # for the interactive report
+  if (interactive.plots) {
+    if (requireNamespace("shiny", quietly = TRUE) & !is.null(model)) {
+      rmarkdown::run(file = file.path(tempDir, "report.rmd"))
+    } else {
+      stop("MASS library is required for the variable selection part")
+    }
+  }
+
   return(TRUE)
 }
 
 
-GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, interactive.plots,
-                            columns) {
+GenerateReport_ <- function(dtpath, catVars, yvar, model, tempDir, title,
+                            normality_test_method, interactive.plots, df) {
 
   dtname <- basename(dtpath)
+  columns <- colnames(df)
 
   # creating the directory if not present
   ifelse(!dir.exists(file.path(tempDir)), dir.create(file.path(tempDir)), FALSE)
@@ -74,7 +97,7 @@ GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, inter
   header <- generateHeader(title, interactive.plots)
 
   # Introduction
-  intro <- generateIntro(dtname)
+  intro <- generateIntro(dtname, model)
 
   # Data
   dataInfo <- generateDataInfo(dtpath, catVars)
@@ -83,10 +106,12 @@ GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, inter
   missingInfo <- generateMissingInfo()
 
   # Variable Exploration
-  variableEx <- generateVarEx(columns, catVars, yvar = yvar, yclass = yclass, interactive.plots = interactive.plots)
+  variableEx <- generateVarEx(columns, catVars, yvar = yvar, model = model,
+                              interactive.plots = interactive.plots,
+                              normality_test_method = normality_test_method)
 
   # Correlation
-  associationInfo <- getAssociation(columns, catVars)
+  associationInfo <- getAssociation(columns, catVars, normality_test_method)
 
   # combining all the parts
   tx <- paste0(header,
@@ -99,8 +124,15 @@ GenerateReport_ <- function(dtpath, catVars, yvar, yclass, tempDir, title, inter
                "\n\n####  VARIABLE EXPLORATION \n",
                variableEx,
                "\n\n#### CORRELATION & ASSOCIATION \n",
-               associationInfo,
-               "\n\n#### VARIABLE SELECTION \n")
+               associationInfo)
+
+  if (!is.null(yvar)) {
+    # Variable Selection using stepAIC
+    stepInfo <- getStepInfo(catVars, yvar, model)
+
+    tx <- paste0(tx,  "\n\n#### VARIABLE SELECTION \n",
+                 stepInfo)
+  }
 
   return(tx)
 
@@ -113,8 +145,6 @@ title: ',
 title,
 '\nparams:
   consoleWidth: 80
-  yclass: factor
-  yvar: cyl
 output:
   html_document:
     df_print: paged
@@ -148,7 +178,7 @@ options(width = params$consoleWidth)
   return(out)
 }
 
-generateIntro <- function(dtname) {
+generateIntro <- function(dtname, model) {
   out <- paste0('This project is a bare bone exploration of the data ',
   dtname, '. Make the changes as required.
 
@@ -158,6 +188,15 @@ library(analyzer)
 library(dplyr)
 library(corrplot)
 library(ggplot2)
+')
+
+  if (!is.null(model)) {
+    out <- paste0(out, 'library(MASS)')
+    if (model == "multiClass") {
+      out <- paste0(out, "\nlibrary(nnet)")
+    }
+  }
+  out <- paste0(out, '
 ```
 
 ***')
@@ -191,7 +230,7 @@ for (i in factor_vars) {
   out <- paste0(tx1, "\n", cattx, "\n",
 "\nThe dimension of data is
 ```{r data_dim, echo=F}
-cat(paste0('Columns: ', prettyNum(ncol(tb), big.mark = ','), '\nRows: ', prettyNum(nrow(tb), big.mark = ','), '\nUnique Rows: ', prettyNum(length(unique(tb)), big.mark = ',')))
+cat(paste0('Columns: ', prettyNum(ncol(tb), big.mark = ','), '\nRows: ', prettyNum(nrow(tb), big.mark = ','), '\nUnique Rows: ', prettyNum(nrow(unique(tb)), big.mark = ',')))
 ```
 
 ```{r data_head}
@@ -226,25 +265,43 @@ columns and all the rows.
 
 }
 
-generateVarEx <- function(columns, catVars, yvar, yclass, interactive.plots) {
+generateVarEx <- function(columns, catVars, yvar, model, interactive.plots, normality_test_method) {
+
+  yclass = "'numeric'"
+  if (model != "linReg") yclass = "'factor'"
+
+  if (is.null(yvar)) {
+    yvarname <- "No"
+    yvar <- "NULL"
+    yclass <- "NULL"
+  } else {
+    yvarname <- yvar <- paste0("'", yvar, "'")
+  }
 
   tx <- paste0(
-"In this section all the individual variables are being explored.
-Variable **'`r params$yvar`'** is selected as the response (or dependent) variable. While,
+"In this section all the individual variables are being explored. **", yvarname, "**
+variable is selected as the response (or dependent) variable. While
 the remaining variables are selected as the explanatory (or independent) variables.
 
 First, let's create and save all the plots:
 ```{r save_plots_vars}
-variable_plots <- plottrWrapper(tb, yvar = '", yvar, "',
-                                yclass = '", yclass, "', inc.density = T)
+variable_plots <- plottrWrapper(tb, yvar = ", yvar, ",
+                                yclass = ", yclass, ", inc.density = T)
 ```"
   )
 
   # for interactive report
   if (interactive.plots){
-    tx <- paste0(tx,"\n\n",
-                 paste(readLines(file.path("report_temp","varExp.txt")), collapse="\n")
-              )
+
+    text_path <- system.file("report_template", "varExp.txt", package = "analyzer")
+    if (text_path == "") {
+      warning("Could not find required template. Try re-installing 'analyzer'.
+                                 If problem doesn't resolve, contact the author.")
+      tx <- "**Could not find required template. Try re-installing 'analyzer'. If problem doesn't resolve, contact the author.**"
+    } else {
+      tx <- paste0(tx,"\n\n", paste(readLines(file.path("report_temp","varExp.txt")), collapse="\n"))
+    }
+
   } else {
     for (cn in columns){
       tx <- paste0(tx, "\n\n",
@@ -258,12 +315,12 @@ plot(variable_plots$", cn, ")
       if (!cn %in% catVars) {
         tx <- paste0(tx, "\n\n",
 "**Normality test**
-```{r, echo = FALSE}
+```{r}
 # QQ plot
 ggplot(tb, aes(sample = ", cn, ")) + stat_qq(color='red', alpha = 0.6) + stat_qq_line() + theme_minimal()
 
 # Normality assumption test
-nt <- norm_test_fun(tb$",cn,")
+nt <- norm_test_fun(tb$",cn,", method = '",normality_test_method, "')
 ```
 
 The `r nt$method` has a p-value of **`r nt$p.value`**.
@@ -278,7 +335,16 @@ Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does no
   return(tx)
 }
 
-getAssociation <- function(columns, catVars) {
+getAssociation <- function(columns, catVars, normality_test_method) {
+
+  if (normality_test_method == "ks") {
+    normtest <- "Kolmogorov-Smirnov Test"
+  } else if (normality_test_method == "darling") {
+    normtest <- "Anderson-Darling Test"
+  } else {
+    normtest <- "Shapiro-Wilk Normality Test"
+  }
+
   out <- paste0(
 "In general there can be three types of association based on the data type of variables -
 1. Between 2 continuous (numeric) variables
@@ -286,17 +352,26 @@ getAssociation <- function(columns, catVars) {
 3. Between 1 continuous and 1 categorical variables
 
 In this section, each type will be analyzed separately. **association** function can be used to calculate these automatically.
+The normality test of the variables will be done using the **'", normtest, "'**.
 
 ```{r association}
 corr_all <- association(tb, categorical = ",
-paste0("c('", paste0(catVars, collapse = "', '"), "'))"),
+paste0("c('", paste0(catVars, collapse = "', '"), "'), normality_test_method = '", normality_test_method, "')"),
 "\n```")
 
   numVars <- setdiff(columns, catVars)
 
   # for CC
   if (length(numVars) > 0) {
-    tx1 <- paste(readLines(file.path("report_temp","QQ_text.txt")), collapse="\n")
+    text_path <- system.file("report_template", "QQ_text.txt", package = "analyzer")
+    if (text_path == "") {
+      warning("Could not find required template. Try re-installing 'analyzer'.
+                                 If problem doesn't resolve, contact the author.")
+      tx1 <- "**Could not find required template. Try re-installing 'analyzer'. If problem doesn't resolve, contact the author.**"
+    } else {
+      tx1 <- paste(readLines(file.path(text_path)), collapse="\n")
+    }
+
     out <- paste0(out, "\n\n", tx1)
   } else {
     out <- paste0(out, "\n\n", "##### Between 2 continuous (numeric) variables\n\n",
@@ -304,7 +379,14 @@ paste0("c('", paste0(catVars, collapse = "', '"), "'))"),
   }
   # for CC
   if (length(catVars) > 0) {
-    tx1 <- paste(readLines(file.path("report_temp","CC_text.txt")), collapse="\n")
+    text_path <- system.file("report_template", "CC_text.txt", package = "analyzer")
+    if (text_path == "") {
+      warning("Could not find required template. Try re-installing 'analyzer'.
+                                 If problem doesn't resolve, contact the author.")
+      tx1 <- "**Could not find required template. Try re-installing 'analyzer'. If problem doesn't resolve, contact the author.**"
+    } else {
+      tx1 <- paste(readLines(file.path(text_path)), collapse="\n")
+    }
     out <- paste0(out, "\n\n", tx1)
   } else {
     out <- paste0(out, "\n\n", "##### Between 2 categorical (factor) variables\n\n",
@@ -312,12 +394,45 @@ paste0("c('", paste0(catVars, collapse = "', '"), "'))"),
   }
   # CQ
   if (length(catVars) > 0 & length(numVars) > 0) {
-    tx1 <- paste(readLines(file.path("report_temp","CQ_text.txt")), collapse="\n")
+    text_path <- system.file("report_template", "CQ_text.txt", package = "analyzer")
+    if (text_path == "") {
+      warning("Could not find required template. Try re-installing 'analyzer'.
+                                 If problem doesn't resolve, contact the author.")
+      tx1 = "**Could not find required template. Try re-installing 'analyzer'. If problem doesn't resolve, contact the author.**"
+    } else {
+      tx1 <- paste(readLines(file.path(text_path)), collapse="\n")
+    }
     out <- paste0(out, "\n\n", tx1)
   } else {
     out <- paste0(out, "\n\n", "##### Between 1 continuous and 1 categorical variables\n\n",
                   "**No such combination of variables present**")
   }
 
+  return(out)
+}
+
+getStepInfo <- function(catVars, yvar, model) {
+  text_path <- system.file("report_template", "stepwise.txt", package = "analyzer")
+  if (text_path == "") {
+    warning("Could not find required template. Try re-installing 'analyzer'.
+                                 If problem doesn't resolve, contact the author.")
+    out <- "**Could not find required template. Try re-installing 'analyzer'. If problem doesn't resolve, contact the author.**"
+  } else {
+    out <- paste(readLines(file.path(text_path)), collapse="\n")
+  }
+
+  # updating the modeling equation for regression/classification
+  if (model == "binClass") {
+    out <- gsub("back_up_model", "glm(upFormula, data = tb2, family = binomial(link=logit))", out)
+    out <- gsub("forward_low_model", "glm(lowFormula, data = tb2, family = binomial(link=logit))", out)
+  } else if (model == "linReg") {
+    out <- gsub("back_up_model", "lm(upFormula, data = tb2)", out)
+    out <- gsub("forward_low_model", "glm(lowFormula, data = tb2)", out)
+  } else if (model == "multiClass") {
+    out <- gsub("back_up_model", "multinom(upFormula, tb2, trace = FALSE)", out)
+    out <- gsub("forward_low_model", "multinom(lowFormula, tb2, trace = FALSE)", out)
+  }
+
+  out <- gsub("yvariable", yvar, out)
   return(out)
 }

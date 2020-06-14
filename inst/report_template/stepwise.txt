@@ -1,0 +1,44 @@
+
+Model or variable selection is one of the hardest part in modelling.  Adding more variables to model makes it more complicated and will always improve the fit for the training data, but leads to overfitting problem. While less variables in the model also increases the interpretability of the model.
+
+##### Stepwise variable selection
+
+Stepwise variable selection is an automated process, where in each step, a variable is considered for addition to or subtraction from the set of explanatory variables based on some prespecified criterion. Three types of stepwise regression were used:
+
+**Forward selection,** which involves starting with no variables in the model, testing and adding the variable whose inclusion gives the most improvement in AIC, and repeating this process until none improves the model or all variables have been added in the model
+**Backward selection** involves starting with all the variables, testing and deleting the variable whose  deletion  gives the  most improvement in  AIC,  and repeating this process  until none improves the model or all variables have been removed from the model
+**Bidirectional selection** checks for both addition and removal at each step
+
+```{r remove_NA}
+tb2 <- tb[complete.cases(tb), ]
+```
+##### Backward variable selection
+```{r B_variable_selction}
+lowFormula <- yvariable ~ 1
+upFormula  <- yvariable ~ .
+scope      <- list(upper = upFormula, lower = lowFormula)
+up_model   <- back_up_model
+Backward   <- stepAIC(up_model, direction = "backward", trace = FALSE, scope = scope)
+Backward$anova
+```
+
+##### Forward variable selection
+```{r F_variable_selction}
+low_model <- forward_low_model
+Forward   <- stepAIC(low_model, direction = "forward", trace = FALSE, scope = scope)
+Forward$anova
+```
+
+##### Both direction variable selection
+```{r both_variable_selction}
+Both <- stepAIC(low_model, direction = "both", trace = FALSE, scope = scope)
+Both$anova
+```
+
+Following variables were selected by step wise model selection for all three direction:
+
+**Backward direction:** `r paste0(names(Backward$coefficients), collapse = ', ')`
+
+**Forward direction:** `r paste0(names(Forward$coefficients), collapse = ', ')`
+
+**Both direction:** `r paste0(names(Both$coefficients), collapse = ', ')`

@@ -26,9 +26,9 @@
 #'
 #' @export
 norm_test_fun <- function(x, method = "anderson", pval = 0.05, xn = 'x', onlyPval = FALSE) {
-  if (!method %in% c("shapiro", "anderson")) {
-    warning("Method should only be 'shapiro' or 'ad'. Setting method as 'ad'")
-    method <- "ad"
+  if (!method %in% c("shapiro", "anderson", "ks")) {
+    warning("Method should only be 'ks', 'shapiro' or 'anderson'. Setting method as 'anderson'")
+    method <- "anderson"
   }
   if (length(x) > 5000) {
     warning(paste0(xn, " is very large (>5000), normality test may not be accurate. Changing method to 'Anderson-Darling'"))
@@ -41,8 +41,10 @@ norm_test_fun <- function(x, method = "anderson", pval = 0.05, xn = 'x', onlyPva
 
   if (method == "shapiro") {
     out <- shapiro.test(x)
-  } else {
+  } else if (method == "anderson") {
     out <- anderson.test(x)
+  } else {
+    out <- ks.test(x, "pnorm", mean = mean(x), sd = sd(x))
   }
 
   if (onlyPval) {

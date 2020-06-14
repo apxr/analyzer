@@ -64,7 +64,7 @@
 #' @export
 association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  "kendall", "spearman"),
                         method3 = "auto",
-                        normality_test_method = c("shapiro", "ad"),
+                        normality_test_method = c("ks", "anderson", "shapiro"),
                         use = "everything", ...) {
 
   normality_test_method <- match.arg(normality_test_method)

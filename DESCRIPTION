@@ -21,4 +21,5 @@ Suggests:
     testthat,
     tidyr,
     reshape2,
-    rmarkdown
+    rmarkdown,
+    MASS
