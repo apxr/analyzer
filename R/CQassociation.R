@@ -54,15 +54,20 @@
 #' factb  <- tb[, c("cyl","vs")]
 #' numtb  <- tb[, c("mpg", "disp", "qsec")]
 #' CQassociation(numtb, factb)
-#'
-#' @export
 CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-parametric"),
-                          use = "everything", normality_test_method = c("ks", "anderson", "shapiro")) {
+                          use = "everything", normality_test_method = c("ks", "anderson", "shapiro"),
+                          methodMat3 = NULL, methods_used) {
 
   method3 <- match.arg(method3)
   normality_test_method <- match.arg(normality_test_method)
 
-  CQ_ <- function(x,y,method3,varnames) {
+  # updating the method
+  if (is.null(methodMat3)) {
+    methodMat3 <- data.frame(matrix(method3, nrow = ncol(numtb), ncol = ncol(factb),
+                                    dimnames = list(names(numtb), names(factb))))
+  }
+
+  CQ_ <- function(x,y,met,varnames, normality_test_method) {
     uniqY <- unique(y)
     if (length(uniqY)==1){
       warning(paste0("Setting association of ", paste0(varnames, collapse = ", "),
@@ -76,56 +81,66 @@ CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-p
         return(NA)
       }
       # test for normality
-      norm_test <- c(tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1],
-                                            onlyPval = TRUE), error=function(e){
-        warning(paste0("Normality test failed for ", varnames[1])); return(0)
-      }),
-      tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1],
-                             onlyPval = TRUE), error=function(e){
-        warning(paste0("Normality test failed for ", varnames[1])); return(0)
-      }))
+      # norm_test <- c(tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1],
+      #                                       onlyPval = TRUE), error=function(e){
+      #   warning(paste0("Normality test failed for ", varnames[1])); return(0)
+      # }),
+      # tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1],
+      #                        onlyPval = TRUE), error=function(e){
+      #   warning(paste0("Normality test failed for ", varnames[1])); return(0)
+      # }))
+
+      norm_test <- c(norm_test_fun(x1, method = normality_test_method, pval = 0.05, varnames[1],
+                                            onlyPval = TRUE),
+                     norm_test_fun(x2, method = normality_test_method, pval = 0.05, varnames[1],
+                             onlyPval = TRUE))
+
+
       norm_test <- all(norm_test)
       # test for equal variance
       var_test <- var.test(x~y)$p.value > 0.05
 
       assumption_test <- norm_test & var_test
-      if (method3=="auto") {
+      if (met=="auto") {
         if (assumption_test) {
           warning(paste0("Variable ", varnames[1],
                          " follows assumptions for t-test. Doing parameteric test for variables: ",
                          paste0(varnames, collapse = ", ")))
           test <- t.test(x1, x2)
-          return(test$p.value)
+          return(list(m = "t-test", val = test$p.value))
         } else {
           warning(paste0("Variable ", varnames[1],
                          " doesn't follow assumptions of t-test. Doing Non-parameteric test (Mann-Whitney test) for variables: ",
                          paste0(varnames, collapse = ", ")))
           test <- wilcox.test(x ~ y)
-          return(test$p.value)
+          return(list(m = "Mann-Whitney", val = test$p.value))
         }
 
-      } else if (method3 == "parametric") {
+      } else if (met == "parametric") {
         if (!assumption_test) {
           warning(paste0("The continuous variable ", varnames[1],
                          " doesn't follow assumption of t-test. 'non-parametric' test may be better for this"))
         }
-        return(t.test(x1, x2)$p.value)
+        return(list(m = "t-test", val = t.test(x1, x2)$p.value))
       } else {
         if (assumption_test) {
           warning(paste0("The continuous variable ", varnames[1],
                          " follows assumptions for t-test. 'parametric' test may be better for this"))
         }
-        return(wilcox.test(x ~ y)$p.value)
+        return(list(m = "Mann-Whitney", val = wilcox.test(x ~ y)$p.value))
       }
     } else {
       # test for normality (TRUE means normal)
       npvalue<-c()
       for (uq in uniqY) {
         xz <- x[y==uq]
-        norm_test <- tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1],
-                                            onlyPval = TRUE), error=function(e){
-          warning(paste0("Normality test failed for ", varnames[1])); return(0)
-        })
+        # norm_test <- tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, varnames[1],
+        #                                     onlyPval = TRUE), error=function(e){
+        #   warning(paste0("Normality test failed for ", varnames[1])); return(0)
+        # })
+        norm_test <- norm_test_fun(xz, method = normality_test_method, pval = 0.05, varnames[1],
+                                            onlyPval = TRUE)
+
         npvalue<-c(npvalue, norm_test)
       }
       norm_test <- all(npvalue)
@@ -136,30 +151,30 @@ CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-p
         var_test <- fligner.test(x~y)$p.value > 0.05
       }
       assumption_test <- norm_test & var_test
-      if (method3=="auto"){
+      if (met=="auto"){
         if (assumption_test) {
           warning(paste0("Variable ", varnames[1],
                          " follows assumptions of ANOVA. Doing parameteric test (ANOVA) for variables: ",
                          paste0(varnames, collapse = ", ")))
-          return(summary(aov(x ~ y))[[1]][["Pr(>F)"]][1])
+          return(list(m = "ANOVA", val = summary(aov(x ~ y))[[1]][["Pr(>F)"]][1]))
         } else {
           warning(paste0("Variable ", varnames[1],
                          " doesn't follows assumptions of ANOVA. Doing Non-parameteric test (Kruskal Wallis) for variables: ",
                          paste0(varnames, collapse = ", ")))
-          return(kruskal.test(x~y)$p.value)
+          return(list(m = "Kruskal-Wallis", val = kruskal.test(x~y)$p.value))
         }
-      } else if (method3 == "parametric") {
+      } else if (met == "parametric") {
         if (!assumption_test) {
           warning(paste0("The continuous variable ", varnames[1],
                          " doesn't follow assumption of ANOVA. 'non-parametric' test may be better for this"))
         }
-        return(summary(aov(x ~ y))[[1]][["Pr(>F)"]][1])
+        return(list(m = "ANOVA", val = summary(aov(x ~ y))[[1]][["Pr(>F)"]][1]))
       } else {
         if (assumption_test) {
           warning(paste0("The continuous variable ", varnames[1],
                          " follows assumptions for ANOVA. 'parametric' test may be better for this"))
         }
-        return(kruskal.test(x ~ y)$p.value)
+        return(list(m = "Kruskal-Wallis", val = kruskal.test(x ~ y)$p.value))
       }
 
     }
@@ -179,11 +194,18 @@ CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-p
       x <- numtb[,i]
       y <- factb[,j]
 
+      xname <- names(numtb)[i]
+      yname <- names(factb)[j]
+
+      met <- methodMat3[xname, yname]
+
       if (use == "everything") {
         if ((sum(is.na(x))+sum(is.na(y))) > 0) {
           r[i,j] <- NA
         } else {
-          r[i,j] <- CQ_(x,y,method3,c(names(numtb)[i], names(factb)[j]))
+          zz <- CQ_(x,y,met,c(xname, yname), normality_test_method)
+          r[i,j] <- zz$val
+          methods_used[yname, xname] <- methods_used[xname, yname] <- zz$m
         }
       } else {
         ok = complete.cases(x, y)
@@ -197,11 +219,13 @@ CQassociation <- function(numtb, factb, method3 = c("auto", "parametric", "non-p
         } else {
           x <- x[ok]
           y <- y[ok]
-          r[i,j] <- CQ_(x,y,method3,c(names(numtb)[i], names(factb)[j]))
+          zz <- CQ_(x,y,met,c(xname, yname), normality_test_method)
+          r[i,j] <- zz$val
+          methods_used[yname, xname] <- methods_used[xname, yname] <- zz$m
         }
       }
     }
   }
 
-  return(t(r))
+  return(list(vals = t(r), methods_used = methods_used))
 }

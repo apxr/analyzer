@@ -8,9 +8,6 @@
   b. Categorical - chi sq, Cramer's V, Kendall, Spearman for ordinal (passed as numeric type in order, with variable name in categorial argument)
   c. Continous - Categorical
 
-  - pvalue for CC association
-  - Make option to do method selection at variable pair level
-
 2. Plots
   a. Bubble plot for cross tables
   b. Data exploration -

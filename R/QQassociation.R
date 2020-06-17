@@ -58,9 +58,7 @@
 #' QQassociation(factb)
 #'
 #' QQassociation(factb, use = "complete.obs")
-#'
-#' @export
-QQassociation <- function(factb, use = "everything") {
+QQassociation <- function(factb, use = "everything", methods_used) {
 
   chiCor <- function(x, y) {
     tbl <- table(x, y)
@@ -75,6 +73,10 @@ QQassociation <- function(factb, use = "everything") {
     for (j in seq_len(i)) {
       x <- factb[, i]
       y <- factb[, j]
+
+      xname <- names(factb)[i]
+      yname <- names(factb)[j]
+      methods_used[yname, xname] <- methods_used[xname, yname] <- "Chi Square"
 
       if (use == "everything") {
         if ((sum(is.na(x))+sum(is.na(y))) > 0) {
@@ -104,5 +106,5 @@ QQassociation <- function(factb, use = "everything") {
     }
   }
 
-  return(list(chisq = r, cramers = cramerV))
+  return(list(chisq = r, cramers = cramerV, methods_used = methods_used))
 }

@@ -47,24 +47,56 @@
 #' CCassociation(mtcars, use = "complete.obs", norm_test_all = norm_test_all)
 #' rm(norm_test_all)
 #'
-#' @export
-CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
+CCassociation <- function(numtb, use = "everything", normality_test_method,
+                          method1 = c("auto", "pearson",  "kendall", "spearman"),
+                          methodMat1 = NULL, methods_used) {
 
-  CC_ <- function(x, y, varnames, norm_test) {
+  CC_ <- function(x, y, varnames, norm_test, met) {
 
-    if (norm_test) {
-      warning(paste0("Variable ", paste0(varnames, collapse = ", "),
-                     " follows normality assumptions. Doing parameteric test (Pearson) for variables: ",
-                     paste0(varnames, collapse = ", ")))
-      return(cor.test(x, y, method = "pearson"))
+    if (met == "auto") {
+      if (norm_test) {
+        warning(paste0("Variables '", paste0(varnames, collapse = "' and '"),
+                       "' follows normality assumptions. Doing parameteric test
+                       (Pearson) for these variables."))
+        return(list(m = "Pearson", val = cor.test(x, y, method = "pearson")))
+      } else {
+        warning(paste0("Variables '", paste0(varnames, collapse = "' and '"),
+                       "' doesn't follow normality assumptions. Doing
+                       non-parameteric test (Spearman) for these variables."))
+        return(list(m = "Spearman", val = cor.test(x, y, method="spearman")))
+      }
     } else {
-      warning(paste0("Variable ", paste0(varnames, collapse = ", "),
-                     " doesn't follow normality assumptions. Doing non-parameteric test (Spearman) for variables: ",
-                     paste0(varnames, collapse = ", ")))
-      return(cor.test(x, y, method="spearman"))
+      if (norm_test) {
+        warning(paste0("Variables '", paste0(varnames, collapse = "' and '"),
+                       "' follows normality assumptions. Parameteric test
+                       (Pearson) should be preferred for these variables."))
+      } else {
+        warning(paste0("Variables '", paste0(varnames, collapse = "' and '"),
+                       "' doesn't follow normality assumptions. Non-parameteric
+                       test (Spearman) should be preferred for these variables."))
+      }
+      return(list(m = met, val = cor.test(x, y, method = met)))
     }
 
   }
+
+  method1 <- match.arg(method1)
+
+  # updating the method
+  if (is.null(methodMat1)) {
+    methodMat1 <- data.frame(matrix(method1, nrow = ncol(numtb), ncol = ncol(numtb),
+                         dimnames = list(names(numtb), names(numtb))))
+  }
+
+  norm_test_all <- unlist(lapply(1:ncol(numtb), function(x, numtb, normality_test_method) {
+    # return(tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, names(numtb)[x],
+    #                               onlyPval = TRUE), error=function(e){
+    #                                 warning(paste0("Normality test failed for ", names(numtb)[x])); return(0)
+    #                               }))
+    return(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, names(numtb)[x],
+                  onlyPval = TRUE))
+  }, numtb, normality_test_method))
+  names(norm_test_all) <- colnames(numtb)
 
   if (is.null(norm_test_all)) {
     norm_test_all <- rep(TRUE, ncol(numtb))
@@ -82,6 +114,12 @@ CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
   for (i in seq_len(ncx)) {
 
     for (j in seq_len(i)) {
+
+      xname <- names(numtb)[i]
+      yname <- names(numtb)[j]
+
+      met <- methodMat1[xname, yname]
+
       x <- numtb[, i]
       y <- numtb[, j]
 
@@ -90,16 +128,17 @@ CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
           r[i,j] <- r[j,i] <- NA
           r_pvalue[i,j] <- r_pvalue[j,i] <- NA
         } else {
-          norm_test <- all(norm_test_all[c(names(numtb)[i], names(numtb)[j])])
-          a <- CC_(x, y, c(names(numtb)[i], names(numtb)[j]), norm_test)
-          r[i,j] <- r[j, i] <- a$estimate
-          r_pvalue[i,j] <- r_pvalue[j, i] <- a$p.value
+          norm_test <- all(norm_test_all[c(xname, yname)])
+          a <- CC_(x, y, c(xname, yname), norm_test,met)
+          r[i,j] <- r[j, i] <- a$val$estimate
+          r_pvalue[i,j] <- r_pvalue[j, i] <- a$val$p.value
+          methods_used[yname, xname] <- methods_used[xname, yname] <- a$m
         }
       } else {
         ok = complete.cases(x, y)
         if (sum(ok) == 0){
           if (use == "complete.obs") {
-            stop('While finding association between "', colnames(numtb)[i], '" and "', colnames(numtb)[j],
+            stop('While finding association between "', xname, '" and "', yname,
                  '", all the observations were missing. Select use = "na.or.complete" for such case.')
           } else if (use == "na.or.complete") {
             r[i,j] <- r[j,i] <- NA
@@ -108,13 +147,14 @@ CCassociation <- function(numtb, use = "everything", norm_test_all = NULL) {
         } else {
           x <- x[ok]
           y <- y[ok]
-          norm_test <- all(norm_test_all[c(names(numtb)[i], names(numtb)[j])])
-          a <- CC_(x, y, c(names(numtb)[i], names(numtb)[j]), norm_test)
-          r[i,j] <- r[j, i] <- a$estimate
-          r_pvalue[i,j] <- r_pvalue[j, i] <- a$p.value
+          norm_test <- all(norm_test_all[c(xname, yname)])
+          a <- CC_(x, y, c(xname, yname), norm_test, met)
+          r[i,j] <- r[j, i] <- a$val$estimate
+          r_pvalue[i,j] <- r_pvalue[j, i] <- a$val$p.value
+          methods_used[yname, xname] <- methods_used[xname, yname] <- a$m
         }
       }
     }
   }
-  return(list(r = r, r_pvalue = r_pvalue))
+  return(list(r = r, r_pvalue = r_pvalue, methods_used = methods_used))
 }

@@ -63,12 +63,16 @@
 #'
 #' @export
 association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  "kendall", "spearman"),
-                        method3 = "auto",
+                        method3 = c("auto", "parametric", "non-parametric"), methodMats = NULL,
                         normality_test_method = c("ks", "anderson", "shapiro"),
                         use = "everything", ...) {
 
   normality_test_method <- match.arg(normality_test_method)
+  method3 <- match.arg(method3)
 
+  # global variable to store the methods. Scope will be inside this function
+  methods_used <- data.frame(matrix(NA, nrow = ncol(tb), ncol = ncol(tb),
+                                dimnames = list(names(tb), names(tb))))
   tb <- data.frame(tb)
   args <- list(...)
 
@@ -105,42 +109,25 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
 
   # continuous ==============================================================
   cornumtb <- NULL
+  cornumtb_p <- NULL
   if (!is.null(numtb)){
-    method1 <- match.arg(method1)
-    norm_test_all <- unlist(lapply(1:ncol(numtb), function(x, numtb) {
-      return(tryCatch(norm_test_fun(numtb[,x], method = normality_test_method, pval = 0.05, names(numtb)[x],
-                                    onlyPval = TRUE), error=function(e){
-        warning(paste0("Normality test failed for ", names(numtb)[x])); return(0)
-        }))
-    }, numtb))
-    names(norm_test_all) <- colnames(numtb)
+    cornumtb <- CCassociation(numtb, use, normality_test_method = normality_test_method,
+                              method1 = method1, methodMat1 = methodMats,
+                              methods_used = methods_used)
 
-    if (method1=="auto"){
-      cornumtb <- CCassociation(numtb, use, norm_test_all)
-      cornumtb_p <- cornumtb$r_pvalue
-      cornumtb <- cornumtb$r
-    }else {
-      # Generating some warnings based on the normality tests
-      for (i in 1:length(norm_test_all)) {
-        if (norm_test_all[i]) {
-          warning(paste0("Variable ", names(norm_test_all[i]),
-                         " follows normality assumption, use parametric test (Pearson) for this variable"))
-        } else {
-          warning(paste0("Variable ", names(norm_test_all[i]),
-                         " doesn't follow normality assumption, use non-parametric test (Spearman / Kendall) for this variable"))
-        }
-      }
-      cornumtb <- cor(numtb, method = method1, use = use)
-      cornumtb_p <- cor.mtest(numtb, conf.level = 0.95)
-    }
+    cornumtb_p <- cornumtb$r_pvalue
+    methods_used <- cornumtb$methods_used
+    cornumtb <- cornumtb$r
   }
 
   # categorical =============================================================
   r <- NULL
+  r_pvalue <- NULL
   if (!is.null(factb)) {
-    cats <- QQassociation(factb, use)
-    r_pvalue <- cats$chisq
-    r <- cats$cramers
+    methods_used <- QQassociation(factb, use, methods_used = methods_used)
+    r_pvalue <- methods_used$chisq
+    r <- methods_used$cramers
+    methods_used <- methods_used$methods_used
 
     rownames(r) <- colnames(factb)
     colnames(r) <- colnames(factb)
@@ -150,13 +137,20 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
   # continuous - categorical ===================================================
   continuous_categorical <- NULL
   if (!is.null(numtb) & !is.null(factb)){
-    continuous_categorical <- CQassociation(numtb, factb, method3, use, normality_test_method)
+    continuous_categorical <- CQassociation(numtb, factb, method3, use,
+                                            normality_test_method,
+                                            methodMat3 = methodMats,
+                                            methods_used = methods_used)
+
+    methods_used <- continuous_categorical$methods_used
+    continuous_categorical <- continuous_categorical$vals
   }
 
   return(list(continuous_corr = cornumtb,
               continuous_pvalue = cornumtb_p,
               categorical_cramers = r,
               categorical_pvalue = r_pvalue,
-              continuous_categorical = continuous_categorical))
+              continuous_categorical = continuous_categorical,
+              methods = methods_used))
 }
 
