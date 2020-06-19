@@ -1,2 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+tasks
+.gitignore
+.Rhistory
+cran-comments.md
+.DS_Store

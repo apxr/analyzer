@@ -4,7 +4,15 @@
 \alias{CCassociation}
 \title{Association (Correlation) between Continous (numeric) Variables}
 \usage{
-CCassociation(numtb, use = "everything", norm_test_all = NULL)
+CCassociation(
+  numtb,
+  use = "everything",
+  normality_test_method,
+  normality_test_pval,
+  method1 = c("auto", "pearson", "kendall", "spearman"),
+  methodMat1 = NULL,
+  methods_used
+)
 }
 \arguments{
 \item{numtb}{a data frame with all the numerical columns. This should
@@ -22,9 +30,25 @@ deletion (and if there are no complete cases, that gives an error).
 "na.or.complete" is the same unless there are no complete cases, that gives
 NA}
 
-\item{norm_test_all}{a logical named vector with TRUE when the
-column follows normality assumption, otherwise FALSE. This should have
-TRUE or FALSE for all the columns present in \code{numtb}}
+\item{normality_test_method}{method for normality test for a variable.
+ Values can be \code{shapiro}
+ for Shapiro-Wilk test or
+ \code{'anderson'} for 'Anderson-Darling' test of normality or \code{ks} for
+'Kolmogorov-Smirnov'}
+
+\item{normality_test_pval}{significance level for normality tests.
+Default is 0.05}
+
+\item{method1}{method for association between continuous-continuous
+variables. values can be \code{"auto", "pearson",  "kendall", "spearman"}.
+See details for more information.}
+
+\item{methodMat1}{method dataframe like methodsMat from the function \code{
+association}}
+
+\item{methods_used}{a square data.frame which will store the type of
+association used between the variables. Dimension will be
+number of variables * number of variables.}
 }
 \value{
 a list of two tables with number of rows and column equal to number
@@ -41,23 +65,14 @@ with only numeric columns
 \details{
 This function calls \code{cor} function to calculate the correlation values.
 The difference is that this doesn't take method as parameter, instead it
-decides the methods iteself using normality tests. If the variables satisfy the
-assumption of Pearson correlation, then pearson correlation is calculated.
+decides the methods iteself using normality tests. If the variables satisfy
+the assumption of Pearson correlation, then pearson correlation is calculated.
 Otherwise Spearman is calculated. To learn more, check the
 \code{\link[stats]{cor}}
-}
-\examples{
-CCassociation(mtcars)
-
-# with norm_test_all
-norm_test_all <- rep(TRUE, ncol(mtcars))
-names(norm_test_all) <- colnames(mtcars)
-CCassociation(mtcars, use = "complete.obs", norm_test_all = norm_test_all)
-rm(norm_test_all)
-
 }
 \seealso{
 \code{\link{association}} for association between any type of variables,
 \code{\link{QQassociation}} for Association between Categorical variables,
-\code{\link{CQassociation}} for Association between Continuous-Categorical variables
+\code{\link{CQassociation}} for Association between Continuous-Categorical
+variables
 }

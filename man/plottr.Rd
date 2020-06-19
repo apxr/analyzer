@@ -2,75 +2,131 @@
 % Please edit documentation in R/plottr.R
 \name{plottr}
 \alias{plottr}
-\title{Exploratory plots of a variable}
+\title{Creates plots for the variables in a data.frame}
 \usage{
 plottr(
-  x,
-  y = NULL,
-  xclass = NULL,
+  tb,
+  yvar = NULL,
+  xclasses = NULL,
   yclass = NULL,
-  xname = "x",
-  yname = "y",
-  binwidth.x = NULL,
-  binwidth.y = NULL,
+  printall = F,
   callasfactor = 1,
-  inc.density = FALSE,
+  FUN1 = Cx,
+  FUN2 = Qx,
+  FUN3 = CxCy,
+  FUN4 = QxCy,
+  FUN5 = CxQy,
+  FUN6 = QxQy,
   ...
 )
 }
 \arguments{
-\item{x}{the vector of which visualization is needed}
+\item{tb}{a data.frame or a vector. If \code{yvar} argument is also passed,
+then this should be a dataframe including the repsonse variable (\code{yvar})}
 
-\item{y}{the repsonse variable (if available, else NULL). Default is NULL}
+\item{yvar}{a string showing the repsonse (dependent) variable name. Can be
+\code{NULL} if reponse variable is not present. Make sure that this variable
+is present in the \code{tb}}
 
-\item{xclass}{class of x, if \code{xclass = NULL} then function assigns the
-class \code{(factor/numeric)}}
+\item{xclasses}{a vector of length \code{= ncol(tb)} with the data type of
+all the columns. Can be \code{NULL}, in such case function assigns a class
+to each column. The values have to be either NULL, or a vector of
+either \code{'factor'} or \code{'numeric'}. The order should be same as the
+actual columns in \code{tb}. In case when \code{tb} is a vector, this can
+be a vector of length 1.}
 
-\item{yclass}{class of x, if \code{y} is not NULL than this should be set as
-either \code{factor} or \code{numeric}}
+\item{yclass}{class of response variable. Can be \code{NULL}, but must have
+value when \code{yvar} is not \code{NULL}. Value can be \code{'factor'} or
+\code{'numeric'}}
 
-\item{xname, yname}{name of x and y. Can be the column name.}
-
-\item{binwidth.x, binwidth.y}{binwidth for \code{x} and \code{y} used for
-generating the histogram. If there are \code{NULL}, then ggplot2 assigns
-the value on its own. Look at \code{binwidth} of ggplot for more
-information}
+\item{printall}{(logical) Whether user wants to show the plots. Setting this
+as \code{FALSE} will only returns a list of plots silently.}
 
 \item{callasfactor}{minimum unique values needed for \code{x} to be
 considered as numeric. See details for more information}
 
-\item{inc.density}{(logical) Whether density plot is needed along with
-histogram.}
+\item{FUN1}{an user-defined function for plotting 1 variables when the
+variable is Continuous. See details for more details on how to define these
+variables}
 
-\item{...}{Extra parameters to pass to ggplot}
+\item{FUN2}{same as FUN1 but for categorical variable}
+
+\item{FUN3}{an user defined function for plotting 2 variables when both the
+independent variable (x) and dependent variable (y) are Continuous}
+
+\item{FUN4}{same as FUN3, but when independent variable (x) is Categorical and
+dependent variable (y) is Continuous}
+
+\item{FUN5}{same as FUN3, but when independent variable (x) is Continuous and
+dependent variable (y) is Categorical}
+
+\item{FUN6}{same as FUN3, but when both the independent variable (x) and
+dependent variable (y) are Categorical}
+
+\item{...}{extra arguments passed to functions FUN1-FUN6}
 }
 \value{
-This function returns a grob of class 'analyzerPlot' with exploratory
-  plots. Based on class of \code{x} and \code{y}, this generates different
-  plots including histogram, density, box, crosstab heatmap etc. To view the
-  plot, use \code{plot()}
+A list of plots for all the variables. Each plot will have the class
+  \code{analyzerPlot} and can be displayed using \code{plot()}. If
+  \code{printall = TRUE}, then all plots will also be displayed.
 }
 \description{
-\code{plottr} returns a grob with multiple plots explaining the variable
+\code{plottr} can be used to create plots for
+all the variables in a dataframe or any one vector. The output is a list
+of plots for each variable of class 'grob'
 }
 \details{
 This is a function which helps in understanding the data through multiple
-visualizations. This works either for a single \code{x} variable or for a
-combination of predictor \code{x} and repsonse \code{y} variables. Based on
+visualizations. This works either for a data.frame having multiple variables
+or a single \code{x} variable or for a combination of predictor \code{x} and
+response \code{y} variables. Based on
 class of \code{x} and \code{y} different types of plots are automatically
 generated.
 
-Defining the class of \code{x} and \code{y}: If \code{y} is not NULL, then
+Please note the following points:
+
+Defining the class of variables: If \code{yvar} is not NULL, then
 \code{yclass} has to be passed (which can be 'factor' for classification type
-problem, or 'numeric' for regression). \code{xclass} can be set as NULL, in
-such case the function assigns a class based on the contents. If \code{x} is
-factor/character type, then \code{xclass = 'factor'}, else if \code{x} is
+problem, or 'numeric' for regression). \code{xclasses} stores the class of
+all the variables in the dataframe in same order of columns. Note -
+if \code{yvar} is not NULL, then \code{tb} has to be a data.frame with
+atleast 2 columns (including the yvar). In such
+case xclasses should also have the class of \code{yvar} although it is
+also passed through \code{yclass}. This can also be set as NULL, in
+such case the function assigns a class based on the contents. If variable is
+factor/character type, then \code{xclasses} will have 'factor' as the
+entry for that variable, else if \code{x} is
 numeric with number of unique values less than \strong{callasfactor}
-parameter value, then \code{xclass = 'factor'}, else \code{xclass =
-'numeric'}
+parameter value, then \code{xclasses} will have 'factor', else 'numeric'.
+
+DEFINING CUSTOM FUNCTIONS FOR THE PLOTS USING FUN1, FUN2, FUN3 ... FUN6:
+
+Custom plots can be made using these functions passed as arguments. Following
+things must be followed while defining such functions:
+\itemize{
+ \item the return plot must be of type 'grob'. this can be easily made
+ using gridExtra package. See code of [CxCy()] for sample.
+ \item not all 6 functions are required to be passed. Only pass that function
+ for which plots need to be changed.
+ \item FUN1 and FUN2 must have 3 parameters: \strong{dat} (of type data.frame
+ for the data. Even
+ if there is only one column, it should be passed as a data.frame of one
+ column), \strong{xname} name of column in dat and \strong{...} In addition
+ to these three, any number of additional parameters can be added.
+ \item FUN3, FUN4, FUN5 and FUN6
+ must have 4 parameters: \strong{dat} (of type data.frame for the data.
+ Must have two columns for independent and dependent variables),
+ \strong{xname} name of independent variable in \code{dat},
+ \strong{yname} name of dependent variable in \code{dat} and
+ \strong{...} In addition to these four,
+ any number of additional parameters can be added.
+ \item \strong{...} must be added as an argument in all the functions.
+}
+
+To get a better idea, see the code for function [CxCy()] and [Cx()].
 
 Types of plots: If the \code{y} is \code{NULL}, then histogram with density
-(when \code{inc.density = TRUE}) is generated for numeric \code{x}. Boxplot
+is generated for numeric \code{x}. Boxplot
 is also shown in the same histogram using color and vertical lines. For
 factor \code{x}, a pie chart showing the distribution. If \code{y} is not
 \code{NULL}, then additional plots are added:
@@ -83,18 +139,13 @@ values of \code{y} \item \strong{numeric \code{x}, numeric \code{y}}: Scatter
 plot of \code{x} and \code{y} with rug plot included }
 }
 \examples{
-# simple plot with numerix x
-p1 <- plottr(x = mtcars$mpg)
-plot(p1)
-# plot with numerix x and numeric y
-p1 <- plottr(x = mtcars$mpg, y = mtcars$disp, xclass = "numeric",
-             yclass = "numeric", xname = "mpg", yname = "disp",
-             inc.density = TRUE)
-plot(p1)
-# plot with numerix x and factor y
-p1 <- plottr(x = mtcars$mpg, y = as.factor(mtcars$cyl),
-             xclass = "numeric", yclass = "factor",
-             xname = "mpg", yname = "cyl", inc.density = TRUE)
-plot(p1)
+# simple use for one variable
+p <- plottr(mtcars$mpg)
+# To display the plot
+plot(p$x)
+
+# With complete dataframe and assuming 'mpg' as a dependent variable
+p <- plottr(mtcars, yvar = "mpg", yclass = "numeric")
+plot(p$disp)
 
 }

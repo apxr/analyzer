@@ -1,13 +1,17 @@
 Package: analyzer
 Type: Package
-Title: Does data analysis qulaity checks
+Title: Data Analysis And R Notebook Generation
 Version: 0.0.1
-Authors@R: person("Apurv", "Priyam", email = "apurvpriyam@gmail.com",
-  role = c("aut", "cre"))
+Authors@R: 
+    person(given = "Apurv",
+           family = "Priyam",
+           role = c("aut", "cre"),
+           email = "apurvpriyam@gmail.com")
 Description: This package does data analysis and quality checks which are commonly used in
     data science and analytics. It combines the tabular and graphical visualization
-    for easier usability.
-License: MIT
+    for easier usability. This package also creates an R Notebook with detailed data
+    exploration with one function call. The notebook can be made interactive.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
@@ -22,4 +26,6 @@ Suggests:
     tidyr,
     reshape2,
     rmarkdown,
-    MASS
+    MASS,
+    shiny,
+    nnet

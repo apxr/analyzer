@@ -9,7 +9,10 @@ CQassociation(
   factb,
   method3 = c("auto", "parametric", "non-parametric"),
   use = "everything",
-  normality_test_method = "anderson"
+  normality_test_method = c("ks", "anderson", "shapiro"),
+  normality_test_pval,
+  methodMat3 = NULL,
+  methods_used
 )
 }
 \arguments{
@@ -21,8 +24,8 @@ have atleast two columns}
 
 \item{method3}{method for association between continuous-categorical
 variables. Values can be \code{"auto", "parametric", "non-parametric"}.
-See details for more information. Parametric does t-test while non-parametric
-does 'Mann-Whitney’ test.}
+See details for more information. Parametric does t-test while
+non-parametric does 'Mann-Whitney’ test.}
 
 \item{use}{an optional character string giving a method for computing
 association in the presence of missing values. This must be (complete or an
@@ -39,11 +42,21 @@ NA}
 \item{normality_test_method}{takes values as 'shapiro' or 'anderson'.
 this parameter decides which test to perform for the normality test.
 See details of \code{\link{norm_test_fun}} for more information.}
+
+\item{normality_test_pval}{significance level for normality tests.
+Default is 0.05}
+
+\item{methodMat3}{method dataframe like methodsMat from the function \code{
+association}}
+
+\item{methods_used}{a square data.frame which will store the type of
+association used between the variables. Dimension will be
+number of variables * number of variables.}
 }
 \value{
-a table with number of rows equal to number of columns in \code{numtb}
-and number of columns equal to number of columns in \code{factb}.
-Table containing p-values of performed test
+a table with number of rows equal to number of columns in
+\code{numtb} and number of columns equal to number of columns in
+\code{factb}. Table containing p-values of performed test
 }
 \description{
 \code{CQassociation} finds Association measure between one
@@ -61,18 +74,10 @@ which checks for assumptions for the t-test. If the assumptions are
 satisfied, then t-test (parametric) is performed, otherwise
 'Mann-Whitney’ (non-parametric) test is performed.
 }
-\examples{
-tb <- mtcars
-tb$cyl <- as.factor(tb$cyl)
-tb$vs  <- as.factor(tb$vs)
-factb  <- tb[, c("cyl","vs")]
-numtb  <- tb[, c("mpg", "disp", "qsec")]
-CQassociation(numtb, factb)
-
-}
 \seealso{
 \code{\link{norm_test_fun}} for normality test
 \code{\link{association}} for association between any type of variables,
-\code{\link{CCassociation}} for Association between Continuous (numeric) variables,
+\code{\link{CCassociation}} for Association between Continuous (numeric)
+variables,
 \code{\link{QQassociation}} for Association between Categorical variables
 }

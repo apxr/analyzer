@@ -4,10 +4,12 @@
 \alias{explainer.data.frame}
 \title{Show details of the data frame}
 \usage{
-\method{explainer}{data.frame}(df, xname = NULL, ...)
+\method{explainer}{data.frame}(X, xname = NULL, ...)
 }
 \arguments{
-\item{df}{A data.frame}
+\item{X}{A data.frame}
+
+\item{xname}{variable name}
 
 \item{...}{parameters for explainer for other classes}
 }

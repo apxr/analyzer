@@ -14,3 +14,9 @@
 
   invisible()
 }
+
+# defining some global names to remove the NOTEs generated suring check
+utils::globalVariables(c("Variable", "Missing", "Percent", "Count", "prop",
+                         ".SD", "..density..", "Value", "n", "desc", "counts",
+                         "x", "y"))
+

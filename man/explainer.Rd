@@ -25,15 +25,15 @@ Generic function for printing the details of data. Based on
 the data type, this calls the appropriate method.
 }
 \details{
-Current methods for \code{explainer} are for data.framem, numeric, integer, character
-and factor vectors. To get the list of all available methods type the
-command \code{methods(explainer)}.
+Current methods for \code{explainer} are for data.framem, numeric, integer,
+character and factor vectors. To get the list of all available methods type
+the command \code{methods(explainer)}.
 }
 \examples{
 # for numeric
 explainer(mtcars)
-explainer(mtcars$mpg) # same as explainer.numeric(mtcars$mpg)
+explainer(mtcars$mpg) #same as explainer.numeric(mtcars$mpg)
 # for factor
-explainer(as.factor(mtcars$cyl)) # same as explainer.factor(as.factor(mtcars$cyl))
+explainer(as.factor(mtcars$cyl)) #same as explainer.factor(as.factor(mtcars$cyl))
 
 }

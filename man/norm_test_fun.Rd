@@ -4,19 +4,20 @@
 \alias{norm_test_fun}
 \title{Checks for Normality Assumption}
 \usage{
-norm_test_fun(x, method = "anderson", pval = 0.05, xn = "x", onlyPval = FALSE)
+norm_test_fun(x, method = "anderson", pval = 0.05, xn = "x", bin = FALSE)
 }
 \arguments{
 \item{x}{a numeric vector}
 
 \item{method}{\code{shapiro} for Shapiro-Wilk test or
-\code{'ad'} for 'Anderson-Darling' test of normality}
+\code{'anderson'} for 'Anderson-Darling' test of normality or \code{ks} for
+'Kolmogorov-Smirnov'}
 
-\item{pval}{pvalue cutoff for calling test significant}
+\item{pval}{significance level for normality tests. Default is 0.05}
 
 \item{xn}{vector name}
 
-\item{onlyPval}{TRUE if only TRUE/FALSE is required}
+\item{bin}{TRUE if only TRUE/FALSE is required}
 }
 \value{
 Logical TRUE/FALSE based on the performed test and \code{pval}.
@@ -27,14 +28,16 @@ If the vector follows the normality assumption, then TRUE is returned
 }
 \details{
 This function checks for normality assumption using
-shapiro or Anderson Darling test. If the parameter \code{onlyPval}
-is TRUE, then \code{TRUE} is returned if vector is normal, otherwise FALSE.
+shapiro, Kolmogorov-Smirnov  or Anderson Darling test.
+If the parameter \code{bin} is TRUE, then \code{TRUE} is returned
+if vector is normal, otherwise FALSE.
 The significance level is passed through the parameter
 \code{pval}
 }
 \examples{
 norm_test_fun(mtcars$mpg)
-norm_test_fun(mtcars$mpg, method = "shapiro", pval = 0.05, xn = "mpg", onlyPval = TRUE)
+norm_test_fun(mtcars$mpg, method = "shapiro",
+              pval = 0.05, xn = "mpg", bin = TRUE)
 
 }
 \seealso{

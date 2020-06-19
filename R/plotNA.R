@@ -42,7 +42,12 @@
 #'
 #' @export
 
-plotNA <- function(tb, order = T, limit = T, add_percent = T, row.level = F) {
+plotNA <- function(tb,
+                  order = T,
+                  limit = T,
+                  add_percent = T,
+                  row.level = F) {
+
   # plot1: number of missing
   NAcount <- data.frame(apply(tb, 2, function(x) sum(is.na(x))))
   NAcount$Variable <- row.names(NAcount)
@@ -86,7 +91,7 @@ plotNA <- function(tb, order = T, limit = T, add_percent = T, row.level = F) {
 
       plot_na_ <- function(tb2, level) {
         tb2$isNA <- is.na(tb2$value)
-        p2 <- ggplot(tb2, aes(variable, index, fill = isNA)) +
+        p2 <- ggplot(tb2, aes_string("variable", "index", fill = "isNA")) +
           geom_raster(alpha=1) +
           scale_fill_manual(name = "",
                             values = c('#ebebeb', 'tomato3'),

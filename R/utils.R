@@ -24,7 +24,8 @@
 #'
 #' @export
 
-skewness <- function(x, na.rm = T) {
+skewness <- function(x,
+                     na.rm = T) {
 
   if (is.matrix(x))
     apply(x, 2, skewness, na.rm = na.rm)
@@ -73,7 +74,8 @@ skewness <- function(x, na.rm = T) {
 #'
 #' @export
 
-kurtosis <- function(x, na.rm = T) {
+kurtosis <- function(x,
+                     na.rm = T) {
 
   if (is.matrix(x))
     apply(x, 2, kurtosis, na.rm = na.rm)
@@ -141,7 +143,8 @@ linedivider <- function(consolewidth = getOption("width"), st = 'x'){
 #' freqTable(mtcars$mpg, limit = 0.08)
 #'
 #'@export
-freqTable <- function(Value, limit = NULL) {
+freqTable <- function(Value,
+                      limit = NULL) {
   out <- data.frame(table(Value), stringsAsFactors = F)
   out$Proportion <- out$Freq/length(Value)*100
 
@@ -210,7 +213,9 @@ consoleBoxplot <- function(x) {
     cat("No boxplot for this as unique values are < 3.")
   } else {
     quant <- quantile(x, na.rm = T)
-    box <- round((quant-quant[1])*round(0.9*getOption("width"))/(quant[5]-quant[1]))
+    box <- round((quant-quant[1])*
+                   round(0.9*getOption("width"))/
+                   (quant[5]-quant[1]))
     IQR <- box[4]-box[2]
 
     cat(paste0("|",
