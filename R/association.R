@@ -4,9 +4,9 @@
 #'
 #' This function calculates association value in three categoris -
 #' \itemize{
-#'  \item between continuous variables (using \code{CCassociation} function)
-#'  \item between categorical variables (using \code{QQassociation} function)
-#'  \item between continuous and categorical variables (using \code{CQassociation}
+#' \item between continuous variables (using \code{CCassociation} function)
+#' \item between categorical variables (using \code{QQassociation} function)
+#' \item between continuous and categorical variables (using \code{CQassociation}
 #'   function)
 #' }
 #' For more details, look at the individual documentaion of
@@ -16,7 +16,8 @@
 #' @seealso
 #' \code{\link{CCassociation}} for Correlation between Continuous variables,
 #' \code{\link{QQassociation}} for Association between Categorical variables,
-#' \code{\link{CQassociation}} for Association between Continuous-Categorical variables
+#' \code{\link{CQassociation}} for Association between Continuous-Categorical
+#' variables
 #'
 #' @param tb tabular data
 #' @param categorical a vector specifying the names of categorical (character,
@@ -29,8 +30,23 @@
 #'   See details of \code{\link{CQassociation}} for more information.
 #'   Parametric does t-test while non-parametric
 #'   does 'Mann-Whitney’ test.
-#' @param normality_test_method method for normality test for a variable.
-#'   See details for more information. 'shapiro' or 'ad'
+#' @param methodMats This parameter can be used to define the methods for
+#' calculating correlation and association at variables pair level. The input is
+#' a square dataframe of dimension - number of columns in \code{tb}. The row
+#' names and column names of \code{methodMats} are the column names of \code{tb}.
+#' The values in the dataframe can be:
+#' \describe{
+#'  \item{between continuous-continuous variables}{from parameter \code{method1}
+#'  - "auto", "pearson",  "kendall", "spearman"}
+#'  \item{between continuous-categorical variables}{from parameter
+#'  \code{method3} - "auto", "parametric", "non-parametric"}
+#'  \item{between categorical-categorical variables}{can be anything}
+#' }
+#' Default is NULL. In that case the method used for
+#' calculating correlation and association will be the inputs from parameters.
+#'
+#' This parameter can also tale some other values. See example for more details.
+#' \code{method1} and \code{method3}.
 #' @param use an optional character string giving a method for computing
 #'   association in the presence of missing values. This must be (complete or an
 #'   abbreviation of) one of the strings "everything", "all.obs",
@@ -42,6 +58,12 @@
 #'   deletion (and if there are no complete cases, that gives an error).
 #'   "na.or.complete" is the same unless there are no complete cases, that gives
 #'   NA
+#' @param normality_test_method method for normality test for a variable.
+#'   Values can be \code{shapiro}
+#'   for Shapiro-Wilk test or
+#'   \code{'anderson'} for 'Anderson-Darling' test of normality or \code{ks} for
+#'  'Kolmogorov-Smirnov'
+#' @param normality_test_pval significance level for normality tests. Default is 0.05
 #' @param ... other parameters passed to \code{cor}, \code{CCassociation},
 #'   \code{CQassociation} and \code{QQassociation}
 #'
@@ -49,54 +71,101 @@
 #' \describe{
 #'  \item{continuous_corr}{correlation among all the continuous variables}
 #'  \item{continuous_pvalue}{Table containing p-value for the correlation test}
-#'  \item{categorical_cramers}{Cramer's V value among all the categorical variables}
+#'  \item{categorical_cramers}{Cramer's V value among all the categorical
+#'  variables}
 #'  \item{categorical_pvalue}{Chi Sq test p-value}
-#'  \item{continuous_categorical}{association value among continuous and categorical variables}
+#'  \item{continuous_categorical}{association value among continuous and
+#'  categorical variables}
+#'  \item{method_used}{A datafrome showing the method used for all pairs
+#'  of variables}
 #' }
 #'
 #' @examples
 #' tb <- mtcars
 #' tb$cyl <- as.factor(tb$cyl)
 #' tb$vs  <- as.factor(tb$vs)
-#' association(tb, categorical = c("cyl", "vs"))
+#' out <- association(tb, categorical = c("cyl", "vs"))
+#'
+#' # To use the methodMats parameter, create a matrix like this
+#' methodMats <- out$method_used
+#'
+#' # the values can be changed as per requirement
+#' # NOTE: in addition to the values from parameters method1 and method3,
+#' #       the values in methodMats can also be the values returned by
+#' #       association function
+#' methodMats["mpg", "disp"] <- methodMats["disp", "mpg"] <- "spearman"
+#' out <- association(tb, categorical = c("cyl", "vs"), methodMats = methodMats)
 #' rm(tb)
 #'
+#' @import stats
+#'
 #' @export
-association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  "kendall", "spearman"),
-                        method3 = c("auto", "parametric", "non-parametric"), methodMats = NULL,
+association <- function(tb,
+                        categorical = NULL,
+                        method1 = c("auto", "pearson",  "kendall", "spearman"),
+                        method3 = c("auto", "parametric", "non-parametric"),
+                        methodMats = NULL,
+                        use = "everything",
                         normality_test_method = c("ks", "anderson", "shapiro"),
-                        use = "everything", ...) {
+                        normality_test_pval = 0.05,
+                        ...) {
 
+  # updating the methodMats values to make them consistant with the function
+  if (!is.null(methodMats)) {
+    if (sum(methodMats=="t-test")>0) {
+      methodMats[methodMats == "t-test"] <- "parametric"
+    }
+    if (sum(methodMats=="ANOVA")>0) {
+      methodMats[methodMats == "ANOVA"] <- "parametric"
+    }
+    if (sum(methodMats=="Mann-Whitney")>0) {
+      methodMats[methodMats == "Mann-Whitney"] <- "non-parametric"
+    }
+    if (sum(methodMats=="Kruskal-Wallis")>0) {
+      methodMats[methodMats == "Kruskal-Wallis"] <- "non-parametric"
+    }
+  }
+
+  # getting the test method for normality tests
   normality_test_method <- match.arg(normality_test_method)
   method3 <- match.arg(method3)
 
-  # global variable to store the methods. Scope will be inside this function
+  # Variable to store the methods at variable pairs level
   methods_used <- data.frame(matrix(NA, nrow = ncol(tb), ncol = ncol(tb),
                                 dimnames = list(names(tb), names(tb))))
+
+  # COnverting tb into data.frame
   tb <- data.frame(tb)
   args <- list(...)
 
+  # Method to handle NA ========================================================
   use <- pmatch(use, c("all.obs", "complete.obs", "pairwise.complete.obs",
                        "everything", "na.or.complete"))
   if (is.na(use))
     stop("invalid 'use' argument")
-  use <- c("all.obs", "complete.obs", "pairwise.complete.obs",  "everything", "na.or.complete")[use]
+  use <- c("all.obs", "complete.obs", "pairwise.complete.obs",
+           "everything", "na.or.complete")[use]
 
   if (use == "all.obs" & sum(is.na(tb)) > 0) {
-    stop('missing observations in data. To find association with missing data, set use = "everything" or "complete.obs"')
+    stop('missing observations in data. To find association with missing data,
+         set use = "everything" or "complete.obs"')
   }
 
   if (use == "pairwise.complete.obs") {
     stop('"pairwise.complete.obs" is not available yet.')
   }
-  if ("data.table" %in% class(tb)) tb <- as.data.frame(tb)
 
+  # ============================================================================
   # dividing data into numerical and other columns
   numvars <- sapply(tb, is.numeric)
   numvarsIn <- setdiff(colnames(tb), categorical)
 
-  if (sum(!numvars[numvarsIn]) > 0) {stop("Please pass the names of categorical columns using argument 'categorical'")}
+  if (sum(!numvars[numvarsIn]) > 0) {
+    stop("Please pass the names of categorical
+         columns using argument 'categorical'")
+  }
 
+  # Creating seperate data for numerical and categorical volumns
   factb <- numtb <- NULL
   if (!is.null(categorical) & length(numvarsIn) > 0) {
     numtb <- tb[colnames(tb) %in% numvarsIn]
@@ -107,11 +176,14 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
     factb <- tb
   }
 
-  # continuous ==============================================================
+  # CORRELATION AND ASSOCIATION CALCULATION ====================================
+  # continuous -----------------------------------------------------------------
   cornumtb <- NULL
   cornumtb_p <- NULL
   if (!is.null(numtb)){
-    cornumtb <- CCassociation(numtb, use, normality_test_method = normality_test_method,
+    cornumtb <- CCassociation(numtb, use,
+                              normality_test_method = normality_test_method,
+                              normality_test_pval = normality_test_pval,
                               method1 = method1, methodMat1 = methodMats,
                               methods_used = methods_used)
 
@@ -120,7 +192,7 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
     cornumtb <- cornumtb$r
   }
 
-  # categorical =============================================================
+  # categorical ----------------------------------------------------------------
   r <- NULL
   r_pvalue <- NULL
   if (!is.null(factb)) {
@@ -134,11 +206,12 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
     rownames(r_pvalue) <- colnames(factb)
     colnames(r_pvalue) <- colnames(factb)
   }
-  # continuous - categorical ===================================================
+  # continuous - categorical ---------------------------------------------------
   continuous_categorical <- NULL
   if (!is.null(numtb) & !is.null(factb)){
     continuous_categorical <- CQassociation(numtb, factb, method3, use,
                                             normality_test_method,
+                                            normality_test_pval,
                                             methodMat3 = methodMats,
                                             methods_used = methods_used)
 
@@ -146,11 +219,12 @@ association <- function(tb, categorical = NULL, method1 = c("auto", "pearson",  
     continuous_categorical <- continuous_categorical$vals
   }
 
+  # FINAL RETURN ---------------------------------------------------------------
   return(list(continuous_corr = cornumtb,
               continuous_pvalue = cornumtb_p,
               categorical_cramers = r,
               categorical_pvalue = r_pvalue,
               continuous_categorical = continuous_categorical,
-              methods = methods_used))
+              method_used = methods_used))
 }
 

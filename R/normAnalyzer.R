@@ -3,8 +3,9 @@
 #' \code{norm_test_fun} checks for the normality assumption
 #'
 #' This function checks for normality assumption using
-#' shapiro or Anderson Darling test. If the parameter \code{onlyPval}
-#' is TRUE, then \code{TRUE} is returned if vector is normal, otherwise FALSE.
+#' shapiro, Kolmogorov-Smirnov  or Anderson Darling test.
+#' If the parameter \code{bin} is TRUE, then \code{TRUE} is returned
+#' if vector is normal, otherwise FALSE.
 #' The significance level is passed through the parameter
 #' \code{pval}
 #'
@@ -12,30 +13,38 @@
 #'
 #' @param x a numeric vector
 #' @param method \code{shapiro} for Shapiro-Wilk test or
-#' \code{'anderson'} for 'Anderson-Darling' test of normality
-#' @param pval pvalue cutoff for calling test significant
+#' \code{'anderson'} for 'Anderson-Darling' test of normality or \code{ks} for
+#' 'Kolmogorov-Smirnov'
+#' @param pval significance level for normality tests. Default is 0.05
 #' @param xn vector name
-#' @param onlyPval TRUE if only TRUE/FALSE is required
+#' @param bin TRUE if only TRUE/FALSE is required
 #'
 #' @return Logical TRUE/FALSE based on the performed test and \code{pval}.
 #' If the vector follows the normality assumption, then TRUE is returned
 #'
 #' @examples
 #' norm_test_fun(mtcars$mpg)
-#' norm_test_fun(mtcars$mpg, method = "shapiro", pval = 0.05, xn = "mpg", onlyPval = TRUE)
+#' norm_test_fun(mtcars$mpg, method = "shapiro",
+#'               pval = 0.05, xn = "mpg", bin = TRUE)
 #'
 #' @export
-norm_test_fun <- function(x, method = "anderson", pval = 0.05, xn = 'x', onlyPval = FALSE) {
+norm_test_fun <- function(x,
+                          method = "anderson",
+                          pval = 0.05,
+                          xn = 'x',
+                          bin = FALSE) {
+
   if (!method %in% c("shapiro", "anderson", "ks")) {
-    warning("Method should only be 'ks', 'shapiro' or 'anderson'. Setting method as 'anderson'")
+    warning("Method should only be 'ks', 'shapiro' or 'anderson'.
+            Setting method as 'anderson'")
     method <- "anderson"
   }
   if (length(x) > 5000) {
-    warning(paste0(xn, " is very large (>5000), normality test may not be accurate. Changing method to 'Anderson-Darling'"))
-    method = "anderson"
+    warning(paste0(xn, " is very large (>5000), normality test may be accurate.
+                   Consider changing method to 'Anderson-Darling'"))
   }
   if (length(x) < 3) {
-    warning(paste0(xn, " is very small (<3), normality test can't be performed."))
+    warning(paste0(xn," is very small (<3), normality test can't be performed."))
     return(0)
   }
 
@@ -47,7 +56,7 @@ norm_test_fun <- function(x, method = "anderson", pval = 0.05, xn = 'x', onlyPva
     out <- ks.test(x, "pnorm", mean = mean(x), sd = sd(x))
   }
 
-  if (onlyPval) {
+  if (bin) {
     return(out$p.value  > pval)
   } else {
     return(out)
@@ -105,7 +114,8 @@ anderson.test <- function (x){
     pval <- exp(1.2937 - 5.709 * AA + 0.0186 * AA^2)
   }
   else pval <- 3.7e-24
-  out <- list(statistic = c(A = A), p.value = pval, method = "Anderson-Darling normality test",
+  out <- list(statistic = c(A = A), p.value = pval,
+              method = "Anderson-Darling normality test",
               data.name = DNAME)
   class(out) <- "htest"
   return(out)

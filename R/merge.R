@@ -1,16 +1,19 @@
 
 
 
-mergeAnalyzer <- function(x, y, round.digit = 2, ...) {
+mergeAnalyzer <- function(x,
+                          y,
+                          round.digit = 2,
+                          ...) {
   cl <- class(x)
 
+  if (!requireNamespace("data.table", quietly = TRUE)) {
+   stop("Please install data.table for this function")
+  }
+
   if (!"data.table" %in% cl) {
-    if (requireNamespace("data.table", quietly = TRUE)) {
-      x <- data.table::as.data.table(x)
-      y <- data.table::as.data.table(y)
-    } else {
-      warning("Install data.table package for faster run")
-    }
+    x <- data.table::as.data.table(x)
+    y <- data.table::as.data.table(y)
   }
 
   args <- list(...)
@@ -54,7 +57,8 @@ mergeAnalyzer <- function(x, y, round.digit = 2, ...) {
 
   if (any(remainingWRTx > 1 | remainingWRTy > 1)) {
     cat(
-      "\n*: increased because either x, y or both has duplicates at the level of data merging\n\n"
+      "\n*:increased because either x, y or both has
+      duplicates at the level of data merging\n\n"
     )
   }
   cat(
@@ -70,23 +74,25 @@ mergeAnalyzer <- function(x, y, round.digit = 2, ...) {
 }
 
 
-getSummaryformerge <- function(tb, name, round.digit = 2) {
-  numrows = nrow(tb)
+getSummaryformerge <- function(tb,
+                               name,
+                               round.digit = 2) {
+  numrows <- nrow(tb)
   numvars <- which(sapply(tb, is.numeric))
   tb <- tb[, numvars, with = FALSE]
   tb <- t(tb[, lapply(.SD, sum, na.rm = TRUE)])
   numvars <- row.names(tb)
-  tb <- data.table(tb)
+  tb <- data.table::data.table(tb)
   tb$Column <- numvars
-  tb <- rbind(data.table(V1 = numrows, Column = "No. of Rows"), tb)
+  tb <- rbind(data.table::data.table(V1 = numrows, Column = "No. of Rows"), tb)
   colnames(tb)[1] <- name
   tb[,1] <- round(tb[,1], round.digit)
   return(tb)
-
 }
 
 
-checkduplicatedeformerge <- function(tb, by) {
+checkduplicatedeformerge <- function(tb,
+                                     by) {
   uniqCount <- data.table::uniqueN(tb, by = by)
 
   if (uniqCount < nrow(tb)) {

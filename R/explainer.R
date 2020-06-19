@@ -3,9 +3,9 @@
 #' Generic function for printing the details of data. Based on
 #' the data type, this calls the appropriate method.
 #'
-#' Current methods for \code{explainer} are for data.framem, numeric, integer, character
-#' and factor vectors. To get the list of all available methods type the
-#' command \code{methods(explainer)}.
+#' Current methods for \code{explainer} are for data.framem, numeric, integer,
+#' character and factor vectors. To get the list of all available methods type
+#' the command \code{methods(explainer)}.
 #'
 #' @param X a data.frame or a vector
 #' @param xname name of the data to be printed. If missing then the
@@ -20,12 +20,14 @@
 #' @examples
 #' # for numeric
 #' explainer(mtcars)
-#' explainer(mtcars$mpg) # same as explainer.numeric(mtcars$mpg)
+#' explainer(mtcars$mpg) #same as explainer.numeric(mtcars$mpg)
 #' # for factor
-#' explainer(as.factor(mtcars$cyl)) # same as explainer.factor(as.factor(mtcars$cyl))
+#' explainer(as.factor(mtcars$cyl)) #same as explainer.factor(as.factor(mtcars$cyl))
 #'
 #' @export
-explainer <- function(X, xname = NULL, ...) {
+explainer <- function(X,
+                      xname = NULL,
+                      ...) {
   UseMethod("explainer", X)
 }
 
@@ -35,7 +37,8 @@ explainer <- function(X, xname = NULL, ...) {
 #'
 #' This function uses \code{explainer} on each column.
 #'
-#' @param df A data.frame
+#' @param X A data.frame
+#' @param xname variable name
 #' @param ... parameters for explainer for other classes
 #' @return Prints details of the dataset which includes: dataset name,
 #' type, number of columns, rows and unique rows. Also prints output of
@@ -46,7 +49,10 @@ explainer <- function(X, xname = NULL, ...) {
 #'
 #' @export
 
-explainer.data.frame <- function(df, xname = NULL, ...) {
+explainer.data.frame <- function(X,
+                                 xname = NULL,
+                                 ...) {
+  df <- X
   if (requireNamespace("data.table", quietly = TRUE)) {
     uniqRow <- data.table::uniqueN(df)
   } else {
@@ -65,8 +71,8 @@ explainer.data.frame <- function(df, xname = NULL, ...) {
   df <- as.data.frame(df)
   # showing each variable
   summ <- lapply(names(df), function(x, df, linedivider, consolewidth) {
-    X <- df[,x]
-    explainer(X, xname = x, ...)
+    X1 <- df[,x]
+    explainer(X1, xname = x, ...)
     linedivider(consolewidth)
   }, df, linedivider, consolewidth)
 
@@ -128,8 +134,13 @@ explainer.data.frame <- function(df, xname = NULL, ...) {
 #' 'kurtosis'), round.digit = 1, quant.seq = seq(0,1,0.1), trim = 0.05)
 #'
 #' @export
-explainer.numeric <- function(X, xname = NULL, include.numeric = NULL, round.digit = 2, quant.seq = seq(0,1,0.2),
-                            trim = 0.05, ...) {
+explainer.numeric <- function(X,
+                              xname = NULL,
+                              include.numeric = NULL,
+                              round.digit = 2,
+                              quant.seq = seq(0,1,0.2),
+                              trim = 0.05,
+                              ...) {
 
   if (is.null(xname)) xname <- deparse(substitute(X))
   cat_ <- paste0(xname, " (type: ", paste0(class(X), collapse = ", "), ")")
@@ -161,11 +172,12 @@ explainer.numeric <- function(X, xname = NULL, include.numeric = NULL, round.dig
   }
 
   blanks_to_add <- 1+max(0, max(nchar(out) - nchar(colnames(out))))
-  names(out) <- paste0(paste0(rep(" ", blanks_to_add), collapse = ""), names(out))
+  names(out) <- paste0(paste0(rep(" ", blanks_to_add), collapse = ""),
+                       names(out))
   print(out, row.names = F)
   consoleBoxplot(X)
   if (uniqx <= 10) {
-    cat("\n Showing frequency table because variable has less distinct values: \n")
+    cat("\nShowing frequency table because variable has less distinct values:\n")
     print(freqTable(X), row.names = F)
   }
 }
@@ -198,7 +210,9 @@ explainer.numeric <- function(X, xname = NULL, include.numeric = NULL, round.dig
 #' rm(alphabets)
 #'
 #'@export
-explainer.character <- function(X, xname = NULL, ...) {
+explainer.character <- function(X,
+                                xname = NULL,
+                                ...) {
   if (is.null(xname)) xname <- deparse(substitute(X))
   cat_ <- paste0(xname, " (type: ", paste0(class(X), collapse = ", "), ")")
   cat(paste0(cat_, "\n",
@@ -242,6 +256,8 @@ explainer.character <- function(X, xname = NULL, ...) {
 #' rm(alphabets)
 #'
 #'@export
-explainer.factor <- function(X, xname = NULL, ...) {
+explainer.factor <- function(X,
+                             xname = NULL,
+                             ...) {
   explainer.character(X, xname, ...)
 }

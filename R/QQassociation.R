@@ -26,8 +26,10 @@
 #'
 #' @seealso
 #' \code{\link{association}} for association between any type of variables,
-#' \code{\link{CCassociation}} for Association between Continuous (numeric) variables,
-#' \code{\link{CQassociation}} for Association between Continuous-Categorical variables
+#' \code{\link{CCassociation}} for Association between Continuous (numeric)
+#' variables,
+#' \code{\link{CQassociation}} for Association between Continuous-Categorical
+#' variables
 #'
 #' @param factb a data frame with all the categorical columns. This should
 #' have atleast two columns
@@ -42,6 +44,9 @@
 #'   deletion (and if there are no complete cases, that gives an error).
 #'   "na.or.complete" is the same unless there are no complete cases, that gives
 #'   NA
+#' @param methods_used a square data.frame which will store the type of
+#' association used between the variables. Dimension will be
+#' number of variables * number of variables.
 #'
 #' @return a list of two tables with number of rows and column equal to number
 #' of columns in \code{factb}:
@@ -49,16 +54,9 @@
 #'  \item{chisq}{Table containing p-values of chi-square test}
 #'  \item{cramers}{Table containing Cramer's V}
 #' }
-#'
-#' @examples
-#' tb <- mtcars
-#' tb$cyl <- as.factor(tb$cyl)
-#' tb$vs  <- as.factor(tb$vs)
-#' factb  <- tb[, c("cyl","vs")]
-#' QQassociation(factb)
-#'
-#' QQassociation(factb, use = "complete.obs")
-QQassociation <- function(factb, use = "everything", methods_used) {
+QQassociation <- function(factb,
+                          use = "everything",
+                          methods_used) {
 
   chiCor <- function(x, y) {
     tbl <- table(x, y)
@@ -84,14 +82,20 @@ QQassociation <- function(factb, use = "everything", methods_used) {
         } else {
           chiT <- chiCor(x, y)
           r[i,j] <- r[j,i] <- chiT$p.value
-          cramerV[i,j] <- cramerV[j,i] <- sqrt(chiT$statistic / (length(x)*(min(dim(chiT$observed))-1)))
+          cramerV[i,j] <- cramerV[j,i] <- sqrt(chiT$statistic /
+                                                 (length(x)*
+                                                    (min(dim(chiT$observed))-1)
+                                                  )
+                                               )
         }
       } else {
         ok = complete.cases(x, y)
         if (sum(ok) == 0){
           if (use == "complete.obs") {
-            stop('While finding association between "', colnames(factb)[i], '" and "', colnames(factb)[j],
-                 '", all the observations were missing. Select use = "na.or.complete" for such case.')
+            stop('While finding association between "', colnames(factb)[i],
+                 '" and "', colnames(factb)[j],
+                 '", all the observations were missing.
+                 Select use = "na.or.complete" for such case.')
           } else if (use == "na.or.complete") {
             r[i,j] <- r[j,i] <- NA
           }
@@ -100,7 +104,11 @@ QQassociation <- function(factb, use = "everything", methods_used) {
           y <- y[ok]
           chiT <- chiCor(x, y)
           r[i,j] <- r[j,i] <- chiT$p.value
-          cramerV[i,j] <- cramerV[j,i] <- sqrt(chiT$statistic / (length(x)*(min(dim(chiT$observed))-1)))
+          cramerV[i,j] <- cramerV[j,i] <- sqrt(chiT$statistic
+                                               / (length(x)*
+                                                    (min(dim(chiT$observed))-1)
+                                                  )
+                                               )
         }
       }
     }

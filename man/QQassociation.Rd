@@ -4,7 +4,7 @@
 \alias{QQassociation}
 \title{Association (Correlation) between Categorical Variables}
 \usage{
-QQassociation(factb, use = "everything")
+QQassociation(factb, use = "everything", methods_used)
 }
 \arguments{
 \item{factb}{a data frame with all the categorical columns. This should
@@ -21,6 +21,10 @@ If use is "complete.obs" then missing values are handled by casewise
 deletion (and if there are no complete cases, that gives an error).
 "na.or.complete" is the same unless there are no complete cases, that gives
 NA}
+
+\item{methods_used}{a square data.frame which will store the type of
+association used between the variables. Dimension will be
+number of variables * number of variables.}
 }
 \value{
 a list of two tables with number of rows and column equal to number
@@ -56,18 +60,10 @@ where:
 The p-value for the significance of Cramer's V is the same one
 that is calculated using the Pearson's chi-squared test.
 }
-\examples{
-tb <- mtcars
-tb$cyl <- as.factor(tb$cyl)
-tb$vs  <- as.factor(tb$vs)
-factb  <- tb[, c("cyl","vs")]
-QQassociation(factb)
-
-QQassociation(factb, use = "complete.obs")
-
-}
 \seealso{
 \code{\link{association}} for association between any type of variables,
-\code{\link{CCassociation}} for Association between Continuous (numeric) variables,
-\code{\link{CQassociation}} for Association between Continuous-Categorical variables
+\code{\link{CCassociation}} for Association between Continuous (numeric)
+variables,
+\code{\link{CQassociation}} for Association between Continuous-Categorical
+variables
 }

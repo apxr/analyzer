@@ -8,11 +8,13 @@ GenerateReport(
   dtpath,
   catVars,
   yvar = NULL,
-  yclass = NULL,
+  model = "linReg",
   title = "Report",
   output_format = "html_document",
   tempDir = file.path(getwd(), "temp"),
-  ...
+  normality_test_method = "ks",
+  interactive.plots = FALSE,
+  include.vars = NULL
 )
 }
 \arguments{
@@ -22,7 +24,8 @@ GenerateReport(
 
 \item{yvar}{y variable name if present else \code{NULL}}
 
-\item{yclass}{class of y variable, else \code{NULL}}
+\item{model}{class of y variable (\code{numeric} or \code{factor}),
+else \code{NULL}}
 
 \item{title}{Title of the generated report}
 
@@ -31,7 +34,15 @@ html file.}
 
 \item{tempDir}{Directory where the output files needs to be stored.}
 
-\item{...}{other paramters}
+\item{normality_test_method}{method for normality test for a variable.
+ Values can be \code{shapiro}
+ for Shapiro-Wilk test or
+ \code{'anderson'} for 'Anderson-Darling' test of normality or \code{ks} for
+'Kolmogorov-Smirnov'}
+
+\item{interactive.plots}{for interactive variable exploration}
+
+\item{include.vars}{include only these variables from the full data}
 }
 \value{
 creates a rmarkdown and html/pdf file
@@ -48,7 +59,10 @@ html or pdf format file.
 \dontrun{
 # Assigning the temporary folder in Documnets/temp fodler
 GenerateReport(dtpath = "~/Documents/mtcars.csv", catVars = catVars,
-               yvar = "cyl", yclass = "factor", output_format = "html_document",
-               title = "Report", tempDir = "~/Documents/temp")
+               yvar = "cyl", model = "binClass",
+               output_format = "html_document",
+               title = "Report", tempDir = "~/Documents/temp",
+               interactive.plots = FALSE)
 }
+
 }
