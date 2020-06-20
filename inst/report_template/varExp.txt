@@ -6,18 +6,54 @@ shinyApp(
     selectInput("variable", "Variable:",
                 choices = colnames(tb)),
     verbatimTextOutput("explain"),
-
-    plotOutput("plottr")
+    plotOutput("plottr"),
+    tags$h3("Normality Test"),
+    uiOutput("norm1"),
+    uiOutput("norm2")
   ),
 
   server = function(input, output) {
+    # For the explainer output
     output$explain <- renderPrint({
       explainer(tb[,input$variable], xname = input$variable)
     })
 
+    # For the plot
     output$plottr = renderPlot({
       variable_plots[[input$variable]]
     })
+
+    # For the normal test plot
+    output$norm1 <- renderUI({
+
+      if (input$variable %in% factor_vars) {
+        tags$h4(paste0("No normality test for ", input$variable))
+      } else {
+        output$normplot <- renderPlot({
+          ggplot(tb, aes_string(sample = input$variable)) +
+            stat_qq(color='red', alpha = 0.6) +
+            stat_qq_line() + theme_minimal()
+        })
+        plotOutput("normplot")
+      }
+    })
+
+    # for the normal test summary
+    output$norm2 <- renderUI({
+
+      if (input$variable %in% factor_vars) {
+        tags$h5()
+      } else {
+        nt <- norm_test_fun(tb[, input$variable], method = 'anderson')
+
+        tx <- paste0("The ", nt$method, " has a p-value of ", round(nt$p.value, 4),
+                     " Since ", ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
+                     'p-value is not below the significance level (0.05), we do not have sufficient evidence to'),
+                     " reject the null hypothesis. Therefore, we can say that this variable ",
+                     ifelse(nt$p.value < 0.05, 'does not follow', 'follows'), " the normal distribution.")
+        tags$h5(tx)
+      }
+      })
   },
 
   options = list(height = 700)

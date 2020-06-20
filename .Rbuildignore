@@ -6,3 +6,6 @@ tasks
 cran-comments.md
 .DS_Store
 tasks
+^README\.Rmd$
+*.png
+inst/figures

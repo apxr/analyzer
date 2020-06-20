@@ -12,8 +12,8 @@
 #' percent is added as text to the bars. If \code{row.level} is set to
 #' \code{TRUE} then an additional plot is generated which shows which rows have
 #' missing values and in which variable (reshape2
-#' (\url{cran.r-project.org/web/packages/reshape2/index.html}) library is
-#' required for this).
+#' (\url{https://CRAN.R-project.org/package=reshape2}) library
+#' is required for this).
 #'
 #' @param tb a data.frame
 #' @param order (logical) Whether to order the variables based on missing values

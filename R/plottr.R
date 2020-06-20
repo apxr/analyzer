@@ -1,8 +1,8 @@
 #' Creates plots for the variables in a data.frame
 #'
 #' \code{plottr} can be used to create plots for
-#' all the variables in a dataframe or any one vector. The output is a list
-#' of plots for each variable of class 'grob'
+#' all the variables in a dataframe or any one vector. The output is a list of
+#' plots for each variable of class 'analyzerPlot'
 #'
 #' This is a function which helps in understanding the data through multiple
 #' visualizations. This works either for a data.frame having multiple variables
@@ -32,15 +32,18 @@
 #' Custom plots can be made using these functions passed as arguments. Following
 #' things must be followed while defining such functions:
 #' \itemize{
-#'  \item the return plot must be of type 'grob'. this can be easily made
-#'  using gridExtra package. See code of [CxCy()] for sample.
-#'  \item not all 6 functions are required to be passed. Only pass that function
-#'  for which plots need to be changed.
+#'  \item the return plot must be of type 'grob' or 'gtables' or 'ggplot'.
+#'  Since these outputs will go to \code{\link[gridExtra]{arrangeGrob}}, make
+#'  sure the output plots are acceptable by \code{arrangeGrob} function.
+#'  See code of \code{\link{CxCy}} for sample.
+#'  \item not all 6 functions are required to be passed. Only pass those
+#'  functions for which plots need to be changed.
 #'  \item FUN1 and FUN2 must have 3 parameters: \strong{dat} (of type data.frame
 #'  for the data. Even
 #'  if there is only one column, it should be passed as a data.frame of one
 #'  column), \strong{xname} name of column in dat and \strong{...} In addition
 #'  to these three, any number of additional parameters can be added.
+#'  Look into source of code of \code{\link{Cx}} for sample.
 #'  \item FUN3, FUN4, FUN5 and FUN6
 #'  must have 4 parameters: \strong{dat} (of type data.frame for the data.
 #'  Must have two columns for independent and dependent variables),
@@ -48,23 +51,37 @@
 #'  \strong{yname} name of dependent variable in \code{dat} and
 #'  \strong{...} In addition to these four,
 #'  any number of additional parameters can be added.
+#'  Look into source of code of \code{\link{CxCy}} for sample.
 #'  \item \strong{...} must be added as an argument in all the functions.
 #' }
 #'
-#' To get a better idea, see the code for function [CxCy()] and [Cx()].
+#' To get a better idea, see the code for function \code{\link{CxCy}}
+#' and \code{\link{Cx}}
 #'
-#' Types of plots: If the \code{y} is \code{NULL}, then histogram with density
+#' Default plots: If the \code{y} is \code{NULL}, then histogram with density
 #' is generated for numeric \code{x}. Boxplot
 #' is also shown in the same histogram using color and vertical lines. For
-#' factor \code{x}, a pie chart showing the distribution. If \code{y} is not
-#' \code{NULL}, then additional plots are added:
+#' factor \code{x}, a pie chart showing the distribution. This are the
+#' univariate plots which can be modified by using the FUN1 and FUN2 arguments.
 #'
-#' \itemize{ \item \strong{factor \code{x}, factor \code{y}}: Crosstab with
-#' heatmap \item \strong{factor \code{x}, numeric \code{y}}: histogram and
-#' boxplot of \code{y} for different values of \code{x} \item \strong{numeric
-#' \code{x}, factor \code{y}}: histogram and boxplot of \code{x} for different
-#' values of \code{y} \item \strong{numeric \code{x}, numeric \code{y}}: Scatter
-#' plot of \code{x} and \code{y} with rug plot included }
+#' If \code{y} is not
+#' \code{NULL}, then additional plots are added which can be modified by
+#' using the FUN3, FUN4, FUN5, FUN6 arguments:
+#'
+#' \itemize{
+#'  \item \strong{factor \code{x}, factor \code{y}}: Crosstab with
+#' heatmap (modified by using FUN6)
+#'  \item \strong{factor \code{x}, numeric \code{y}}: histogram and
+#' boxplot of \code{y} for different values of \code{x}
+#' (modified by using FUN4)
+#'  \item \strong{numeric \code{x}, factor \code{y}}:
+#'  histogram and boxplot of \code{x} for different
+#'  values of \code{y}
+#'  (modified by using FUN5)
+#'  \item \strong{numeric \code{x}, numeric \code{y}}: Scatter
+#' plot of \code{x} and \code{y} with rug plot included
+#' (modified by using FUN3)
+#' }
 #'
 #'
 #' @param tb a data.frame or a vector. If \code{yvar} argument is also passed,
@@ -113,7 +130,7 @@
 #' p <- plottr(mtcars, yvar = "mpg", yclass = "numeric")
 #' plot(p$disp)
 #'
-#' @importFrom dplyr %>%
+#' @import dplyr
 #'
 #'
 #' @export

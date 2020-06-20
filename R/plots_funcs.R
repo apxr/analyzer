@@ -95,6 +95,8 @@ CxQy <- function(dat, xname, yname, binwidth.x = NULL, binwidth.y = NULL, ...) {
 
 QxQy <- function(dat, xname, yname, ...) {
   # cross tab histogram and number for ratio
+  x <- dat[, xname]
+  y <- dat[, yname]
   crosstab <- setNames(data.frame(table(x, y)),
                        c(xname, yname,"Count"))
 
@@ -132,7 +134,7 @@ QxQy <- function(dat, xname, yname, ...) {
 #' @return a grob of plot
 #'
 #' @export
-Cx <- function(dat, xname, binwidth = NULL, inc.density = F, ...) {
+Cx <- function(dat, xname, binwidth = NULL, inc.density = T, ...) {
   # histogram
   quants <- quantile(dat[,1], na.rm = T)
 
@@ -179,12 +181,11 @@ Cx <- function(dat, xname, binwidth = NULL, inc.density = F, ...) {
 Qx <- function(dat, xname, ...) {
 
   # pie chart of x distribution
-  piedf <- dat %>%
-    dplyr::group_by(!!as.name(xname)) %>%
-    dplyr::summarise(counts = n()) %>%
-    dplyr::arrange(desc(counts)) %>%
-    dplyr::mutate(prop = round(counts*100/sum(counts), 1),
-                  lab.ypos = cumsum(prop) - 0.5*prop)
+  piedf <- dplyr::group_by(dat, !!as.name(xname))
+  piedf <- dplyr::summarise(piedf, counts = n())
+  piedf <- dplyr::arrange(piedf, desc(counts))
+  piedf <- dplyr::mutate(piedf, prop = round(counts*100/sum(counts), 1),
+                         lab.ypos = cumsum(prop) - 0.5*prop)
 
   p1 <- ggplot(piedf, aes(x = "", y = prop, fill = !!as.name(xname))) +
     geom_bar(width = 1, stat = "identity", color = "white") +

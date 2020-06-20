@@ -12,7 +12,8 @@
 #' else \code{NULL}
 #' @param title Title of the generated report
 #' @param output_format output report format. \code{'html_documennt'} for
-#' html file.
+#' html file or \code{pdf_document} for pdf file output. OR
+#' \code{c("html_document", "pdf_document")} for both.
 #' @param tempDir Directory where the output files needs to be stored.
 #' @param normality_test_method method for normality test for a variable.
 #'   Values can be \code{shapiro}
@@ -22,18 +23,17 @@
 #' @param interactive.plots for interactive variable exploration
 #' @param include.vars include only these variables from the full data
 #'
-#' @return creates a rmarkdown and html/pdf file
+#' @return creates a rmarkdown and html/pdf file. Invisibly returns \code{TRUE}
+#' on successful run.
 #'
 #' @examples
-#'
-#' \dontrun{
-#' # Assigning the temporary folder in Documnets/temp fodler
-#' GenerateReport(dtpath = "~/Documents/mtcars.csv", catVars = catVars,
-#'                yvar = "cyl", model = "binClass",
-#'                output_format = "html_document",
+#'#' # Assigning the temporary folder in Documnets/temp fodler
+#' GenerateReport(dtpath = "~/Documents/mtcars.csv",
+#'                catVars = c("cyl", "vs", "am", "gear"),
+#'                yvar = "vs", model = "binClass",
+#'                output_format = NULL,
 #'                title = "Report", tempDir = "~/Documents/temp",
 #'                interactive.plots = FALSE)
-#' }
 #'
 #' @importFrom utils read.csv
 #'
@@ -104,7 +104,7 @@ GenerateReport <- function(dtpath,
     }
   }
 
-  return(TRUE)
+  invisible(TRUE)
 }
 
 
@@ -329,8 +329,8 @@ the remaining variables are selected as the explanatory (or independent) variabl
 
 First, let's create and save all the plots:
 ```{r save_plots_vars}
-variable_plots <- plottrWrapper(tb, yvar = ", yvar, ",
-                                yclass = ", yclass, ", inc.density = T)
+variable_plots <- plottr(tb, yvar = ", yvar, ",
+                         yclass = ", yclass, ")
 ```"
   )
 
@@ -343,7 +343,7 @@ variable_plots <- plottrWrapper(tb, yvar = ", yvar, ",
                                  If problem doesn't resolve, contact the author.")
       tx <- "**Could not find required template. Try re-installing 'analyzer'. If problem doesn't resolve, contact the author.**"
     } else {
-      tx <- paste0(tx,"\n\n", paste(readLines(file.path("report_temp","varExp.txt")), collapse="\n"))
+      tx <- paste0(tx,"\n\n", paste(readLines(file.path(text_path)), collapse="\n"))
     }
 
   } else {
@@ -367,7 +367,7 @@ ggplot(tb, aes(sample = ", cn, ")) + stat_qq(color='red', alpha = 0.6) + stat_qq
 nt <- norm_test_fun(tb$",cn,", method = '",normality_test_method, "')
 ```
 
-The `r nt$method` has a p-value of **`r nt$p.value`**.
+The `r nt$method` has a p-value of **`r round(nt$p.value, 4)`**.
 Since `r ifelse(nt$p.value < 0.05, 'p-value is less than the significance level (0.05), we',
 'p-value is not below the significance level (0.05), we do not have sufficient evidence to')`
 reject the null hypothesis. Therefore, we can say that this variable **`r ifelse(nt$p.value < 0.05, 'does not follow', 'follows')`

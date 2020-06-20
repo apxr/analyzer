@@ -40,8 +40,8 @@ set to [0, nrow(tb)]. If \code{add_percent} is set as \code{TRUE} then
 percent is added as text to the bars. If \code{row.level} is set to
 \code{TRUE} then an additional plot is generated which shows which rows have
 missing values and in which variable (reshape2
-(\url{cran.r-project.org/web/packages/reshape2/index.html}) library is
-required for this).
+(\url{https://cran.r-project.org/web/packages/reshape2/index.html}) library
+is required for this).
 }
 \examples{
 p <- plotNA(airquality)

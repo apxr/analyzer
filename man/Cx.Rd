@@ -4,7 +4,7 @@
 \alias{Cx}
 \title{Plots for Continuous independent variables}
 \usage{
-Cx(dat, xname, binwidth = NULL, inc.density = F, ...)
+Cx(dat, xname, binwidth = NULL, inc.density = T, ...)
 }
 \arguments{
 \item{dat}{a data.frame with only one column}

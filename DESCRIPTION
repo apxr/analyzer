@@ -1,16 +1,13 @@
 Package: analyzer
 Type: Package
-Title: Data Analysis And R Notebook Generation
-Version: 0.0.1
+Title: Data Analysis and Automated R Notebook Generation
+Version: 1.0.0
 Authors@R: 
     person(given = "Apurv",
            family = "Priyam",
            role = c("aut", "cre"),
            email = "apurvpriyam@gmail.com")
-Description: This package does data analysis and quality checks which are commonly used in
-    data science and analytics. It combines the tabular and graphical visualization
-    for easier usability. This package also creates an R Notebook with detailed data
-    exploration with one function call. The notebook can be made interactive.
+Description: Easy data analysis and quality checks which are commonly used in data science and analytics. It combines the tabular and graphical visualization for easier usability. This package also creates an R Notebook with detailed data exploration with one function call. The notebook can be made interactive.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -28,4 +25,6 @@ Suggests:
     rmarkdown,
     MASS,
     shiny,
-    nnet
+    nnet,
+    knitr
+VignetteBuilder: knitr
