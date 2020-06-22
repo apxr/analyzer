@@ -46,7 +46,8 @@
 #' calculating correlation and association will be the inputs from parameters.
 #'
 #' This parameter can also tale some other values. See example for more details.
-#' \code{method1} and \code{method3}.
+#' But its advisable to use like mentioned above.
+#'
 #' @param use an optional character string giving a method for computing
 #'   association in the presence of missing values. This must be (complete or an
 #'   abbreviation of) one of the strings "everything", "all.obs",
@@ -92,7 +93,8 @@
 #' # the values can be changed as per requirement
 #' # NOTE: in addition to the values from parameters method1 and method3,
 #' #       the values in methodMats can also be the values returned by
-#' #       association function
+#' #       association function. But its advisable to use the options from
+#' #       method1 and method3 arguements
 #' methodMats["mpg", "disp"] <- methodMats["disp", "mpg"] <- "spearman"
 #' out <- association(tb, categorical = c("cyl", "vs"), methodMats = methodMats)
 #' rm(tb)

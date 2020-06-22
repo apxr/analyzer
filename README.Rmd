@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "60%"
 )
 ```
 
@@ -30,7 +30,7 @@ library(ggplot2)
 
 ## Example - Notebook
 
-This is a basic example which shows you how to solve a common problem. By running 
+This is a basic example which shows how to solve a common problem. By running 
 the following command a notebook can be generated:
 
 ```{r example, eval=FALSE}
@@ -38,24 +38,18 @@ GenerateReport(dtpath = "mtcars.csv",
                catVars = c("cyl", "vs", "am", "gear"),
                yvar = "vs", model = "binClass",
                output_format = 'html_document',
-               title = "Report", tempDir = "~/Documents/temp",
+               title = "Report", 
+               output_dir = "~/Documents/temp",
                interactive.plots = FALSE)
 ```
 
-In the above command we are asking to generate an HTML file (output_format = 'html_document')
-for the data **mtcars.csv** stored in the working directory (dtpath = "mtcars.csv").
-We defined the variables ("cyl", "vs", "am", "gear") as categorical through the 
-parameter 'catVars' and variable "vs" as the dependent variable.
+In the above command we are asking to generate an HTML file (output_format = 'html_document') for the data **mtcars.csv** stored in the working directory (dtpath = "mtcars.csv"). We defined the variables ("cyl", "vs", "am", "gear") as categorical through the parameter 'catVars' and variable "vs" as the dependent variable.
 
-For more details on other parameters, look into the help of **GenerateReport** function.
-The generated notebook will have all the relevant code snippents for this particular data 
-along with the outputs. The notebook can be used as a reference and modified as required.
+For more details on other parameters, look into the help of **GenerateReport** function. The generated notebook will have all the relevant code snippents for this particular data along with the outputs. The notebook can be used as a reference and modified as required.
 
-## Plots
+## Example - Plots
 
-**analyzer** can also be used to automatically generate plots for all the columns in 
-the data. If the data has a dependent (response) variable pass it through the **`r 'yvar'`**
-argument and its type through **`r 'yclass'`** argument.
+**analyzer** can also be used to automatically generate plots for all the columns in the data. If the data has a dependent (response) variable pass it through the **`r 'yvar'`** argument and its type through **`r 'yclass'`** argument.
 
 ```{r plot_var}
 # Simple plot for one variable
@@ -69,12 +63,9 @@ p <- plottr(mtcars, yvar = "disp", yclass = "numeric")
 plot(p$mpg)
 ```
 
-The left plot is the univariate plot of 'mpg'. Right plot is bivariate plot with 
-the dependent variable 'disp'.
+The left plot is the univariate plot of 'mpg'. Right plot is bivariate plot with the dependent variable 'disp'.
 
-External functions can be used to create custom plots. the function **plottr** can 
-take 6 functions for plots of different types of variables. Look into the help of plottr 
-for more details. 
+External functions can be used to create custom plots. the function **plottr** can take 6 functions for plots of different types of variables. Look into the help of plottr for more details. 
 
 ```{r plot_custom}
 # Define a function for plot for continuous independent and Continuous dependent variables
@@ -94,15 +85,13 @@ custom_plot_for_continuous_vars <- function(dat, xname, yname, ...) {
 
 The parameters dat, xname, yname and ... must present. Additional arguments can be added.
 
-```{r plot_df2, echo=FALSE}
+```{r plot_df2}
 p <- plottr(mtcars, yvar = "disp", yclass = "numeric", 
             FUN3 = custom_plot_for_continuous_vars)
 plot(p$mpg)
 ```
 
-FUN3 arguemnt is used for generating plots for Continuous independent and Continuous dependent variables.
-This will update the right plot. Left (Univariate) plots can also be changeed by using FUN1 
-(for Continous) and FUN2 (for Categorical) variables.
+FUN3 arguemnt is used for generating plots for Continuous independent and Continuous dependent variables. This will update the right plot. Left (Univariate) plots can also be changeed by using FUN1 (for Continous) and FUN2 (for Categorical) variables.
 
 ```{r plot_custom2}
 # Define a function for plot for continuous independent and Continuous dependent variables
@@ -110,14 +99,14 @@ custom_plot2 <- function(dat, xname, ...) {
   
   # histogram
   p1 <- ggplot(dat, aes_string(x=xname)) +
-    geom_histogram(color="black")
+    geom_histogram(fill="#77bf85", color = "black")
 
   return(p1)
   
 }
 ```
 
-```{r plot_df3, echo=FALSE}
+```{r plot_df3,}
 p <- plottr(mtcars, yvar = "disp", yclass = "numeric",
             FUN1 = custom_plot2, 
             FUN3 = custom_plot_for_continuous_vars)
@@ -125,4 +114,49 @@ plot(p$mpg)
 ```
 
 
-## Correlation and Association
+## Example - Correlation and Association
+
+**analyzer** can also be used to get the measure of association between the variables for the complete dataset. For two continous variables it can find the **pearson, spearman and kendall correlation** based on normality assumption. For two categorical variables it can be used to get the **Chi Square** p-value or **Cramer's V** value. Between one continuous and one categorical **analyzer** can be use **t-test, Mann-Whitney, Kruskal-Wallis and ANOVA test**. The association test depends on multiple criteria including number of unique values in categorical feature, normality test and equal variance test. Equal variance test, in turn, is done by **Bartlett's test** or **Fligner-Killeen** test based on normality assumption. Normality test can also be performed using mutliple tests (see the normality test section).
+
+The most simple use is:
+
+```{r association}
+corr_all <- association(mtcars, categorical = c('cyl', 'vs', 'am', 'gear'), normality_test_method = 'ks')
+```
+
+In above example we have defined 'cyl', 'vs', 'am', 'gear' variables as categorical and set the **Kolmogorov-Smirnov test** as the normality test method. This returns a list of 6 data.frames. The function selects the method automatically based on different normality and equal variance tests. The selected methods can be seen by 
+
+```{r sel_methods}
+corr_all$method_used
+```
+
+The methods for association can be changed by using the method1 (between 2 continuous variable) or method3 (between continuous and categorical variables). The default is 'auto' for automatic selection. Method can also be changed at the variables pair level by using **methodMats** argument in following way. Define a data.frame in following way and pass it through methodMats:
+
+```{r }
+corr_all$method_used
+```
+
+This data.frame can take values like the one returned originally:
+
+- between continuous-continuous variables ("auto", "pearson", "kendall", "spearman")
+- between continuous-categorical variables ("auto", "t-test", "ANOVA", "Mann-Whitney", "Kruskal-Wallis")
+- between categorical-categorical variables can be anything
+
+But its advisable to pass values like below because t-test and ANOVA are both for parametric test but depends on number of unique values in the categorical variable. If 'parametric' is used instead of 'ANOVA' or 't-test' then function identifies between 'ANOVA' or 't-test' automatically.
+
+- between continuous-continuous variables ("auto", "pearson", "kendall", "spearman")
+- between continuous-categorical variables ("auto", "parametric", "non-parametric")
+- between categorical-categorical variables can be anything
+
+
+## Example - Normality test
+
+**analyzer** also gives the function to do normality test using three different methods: 
+
+- Shapiro-Wilk test
+- Anderson-Darling test
+- Kolmogorov-Smirnov test
+
+```{r norm_test}
+norm_test_fun(mtcars$mpg, method = "anderson")
+```

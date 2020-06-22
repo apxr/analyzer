@@ -8,13 +8,14 @@
 #' @param dtpath dataset path
 #' @param catVars vector of categorical variables names
 #' @param yvar y variable name if present else \code{NULL}
-#' @param model class of y variable (\code{numeric} or \code{factor}),
-#' else \code{NULL}
+#' @param model type of model - \code{linReg} for linear regression
+#' \code{binClass} for binary classification and \code{multiClass} for
+#' multiclass classification
 #' @param title Title of the generated report
 #' @param output_format output report format. \code{'html_documennt'} for
 #' html file or \code{pdf_document} for pdf file output. OR
 #' \code{c("html_document", "pdf_document")} for both.
-#' @param tempDir Directory where the output files needs to be stored.
+#' @param output_dir Directory where the output files needs to be stored.
 #' @param normality_test_method method for normality test for a variable.
 #'   Values can be \code{shapiro}
 #'   for Shapiro-Wilk test or
@@ -32,7 +33,8 @@
 #'                catVars = c("cyl", "vs", "am", "gear"),
 #'                yvar = "vs", model = "binClass",
 #'                output_format = NULL,
-#'                title = "Report", tempDir = "~/Documents/temp",
+#'                title = "Report",
+#'                output_dir = "~/Documents/temp",
 #'                interactive.plots = FALSE)
 #'
 #' @importFrom utils read.csv
@@ -44,7 +46,7 @@ GenerateReport <- function(dtpath,
                            model = 'linReg',
                            title = "Report",
                            output_format = 'html_document',
-                           tempDir = file.path(getwd(), "temp"),
+                           output_dir = file.path(getwd(), "temp"),
                            normality_test_method = "ks",
                            interactive.plots = FALSE,
                            include.vars = NULL) {
@@ -58,12 +60,20 @@ GenerateReport <- function(dtpath,
 
   if (is.null(model)) {
     if (!is.null(yvar)) {
-      stop("If yvar is not NULL then model parameter
+      stop("If yvar is not NULL then 'model' parameter
            is required and can't be NULL")
     } else {
       model <- "linReg"
     }
   }
+
+  if (!is.null(yvar) & model != 'linReg') {
+    if (!yvar %in% catVars) {
+      catVars <- c(catVars, yvar)
+    }
+  }
+
+
   if (!requireNamespace("MASS", quietly = TRUE) & !is.null(model)) {
     stop("MASS library is required for the variable selection part")
   }
@@ -77,18 +87,18 @@ GenerateReport <- function(dtpath,
                         catVars,
                         yvar,
                         model,
-                        tempDir = tempDir,
+                        output_dir = output_dir,
                         title = title,
                         normality_test_method = normality_test_method,
                         interactive.plots = interactive.plots,
                         df = tb_)
 
-  cat(tx, file = file.path(tempDir, "report.rmd"))
+  cat(tx, file = file.path(output_dir, "report.rmd"))
 
   # Converting into html/interactive report
   if (!is.null(output_format)) {
     if (requireNamespace("rmarkdown", quietly = TRUE)) {
-      rmarkdown::render(input = file.path(tempDir, "report.rmd"),
+      rmarkdown::render(input = file.path(output_dir, "report.rmd"),
                         output_format = output_format)
     } else {
       stop("Please install library 'rmarkdown' to create the html/pdf file.")
@@ -98,7 +108,7 @@ GenerateReport <- function(dtpath,
   # for the interactive report
   if (interactive.plots) {
     if (requireNamespace("shiny", quietly = TRUE) & !is.null(model)) {
-      rmarkdown::run(file = file.path(tempDir, "report.rmd"))
+      rmarkdown::run(file = file.path(output_dir, "report.rmd"))
     } else {
       stop("MASS library is required for the variable selection part")
     }
@@ -112,7 +122,7 @@ GenerateReport_ <- function(dtpath,
                             catVars,
                             yvar,
                             model,
-                            tempDir,
+                            output_dir,
                             title,
                             normality_test_method,
                             interactive.plots,
@@ -122,8 +132,8 @@ GenerateReport_ <- function(dtpath,
   columns <- colnames(df)
 
   # creating the directory if not present
-  ifelse(!dir.exists(file.path(tempDir)),
-         dir.create(file.path(tempDir)),
+  ifelse(!dir.exists(file.path(output_dir)),
+         dir.create(file.path(output_dir)),
          FALSE)
 
   # Header
@@ -161,9 +171,9 @@ GenerateReport_ <- function(dtpath,
 
   if (!is.null(yvar)) {
     # Variable Selection using stepAIC
-    stepInfo <- getStepInfo(catVars, yvar, model)
+    stepInfo <- getStepInfo(catVars, yvar, model, columns)
 
-    tx <- paste0(tx,  "\n\n#### VARIABLE SELECTION \n",
+    tx <- paste0(tx,  "\n\n### VARIABLE SELECTION \n",
                  stepInfo)
   }
 
@@ -376,6 +386,11 @@ the normal distribution**.")
     }
   }
 
+  tx <- paste0(tx, "
+
+***
+
+")
 
   return(tx)
 }
@@ -455,12 +470,20 @@ paste0("c('", paste0(catVars, collapse = "', '"), "'), normality_test_method = '
                   "**No such combination of variables present**")
   }
 
+  out <- paste0(out, "
+
+***
+
+")
   return(out)
 }
 
 getStepInfo <- function(catVars,
                         yvar,
-                        model) {
+                        model,
+                        allvars) {
+
+  # reading and creating the base template
   text_path <- system.file("report_template", "stepwise.txt", package = "analyzer")
   if (text_path == "") {
     warning("Could not find required template. Try re-installing 'analyzer'.
@@ -482,6 +505,29 @@ getStepInfo <- function(catVars,
     out <- gsub("forward_low_model", "multinom(lowFormula, tb2, trace = FALSE)", out)
   }
 
+  # Adding code to show the coefficients based on 'model' type
+  out <- gsub("back1vars_place",
+              ifelse(model=="multiClass",
+                     "paste0(Backward$coefnames, collapse = ', ')",
+                     "paste0(names(Backward$coefficients), collapse = ', ')"),
+              out)
+  out <- gsub("for1vars_place",
+              ifelse(model=="multiClass",
+                     "paste0(Forward$coefnames, collapse = ', ')",
+                     "paste0(names(Forward$coefficients), collapse = ', ')"),
+              out)
+  out <- gsub("both1vars_place",
+              ifelse(model=="multiClass",
+                     "paste0(Both$coefnames, collapse = ', ')",
+                     "paste0(names(Both$coefficients), collapse = ', ')"),
+              out)
+
+  # adding the upper formula (which includes all variables)
+  out <- gsub("upFormula_place",
+              paste(yvar, "~", paste(setdiff(allvars, yvar), collapse = "+")),
+              out)
+
+  # updating the y variable name in text
   out <- gsub("yvariable", yvar, out)
   return(out)
 }

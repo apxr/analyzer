@@ -15,7 +15,7 @@ tb2 <- tb[complete.cases(tb), ]
 ##### Backward variable selection
 ```{r B_variable_selction}
 lowFormula <- yvariable ~ 1
-upFormula  <- yvariable ~ .
+upFormula  <- upFormula_place
 scope      <- list(upper = upFormula, lower = lowFormula)
 up_model   <- back_up_model
 Backward   <- stepAIC(up_model, direction = "backward", trace = FALSE, scope = scope)
@@ -37,8 +37,8 @@ Both$anova
 
 Following variables were selected by step wise model selection for all three direction:
 
-**Backward direction:** `r paste0(names(Backward$coefficients), collapse = ', ')`
+**Backward direction:** `r back1vars_place`
 
-**Forward direction:** `r paste0(names(Forward$coefficients), collapse = ', ')`
+**Forward direction:** `r for1vars_place`
 
-**Both direction:** `r paste0(names(Both$coefficients), collapse = ', ')`
+**Both direction:** `r both1vars_place`
