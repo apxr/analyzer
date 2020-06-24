@@ -22,7 +22,7 @@
 \item{include.numeric}{a vector having strings which is also required along
 with the default output. Can have values:
 \itemize{
- \item \code{trimmed.means} for printing the trimemd mean after removing
+ \item \code{trimmed.means} for printing the trimmed mean after removing
  \code{trim} fraction of data from each side of x. \code{trim} can be passed
  as an parameter
  \item \code{skewness} for printing the skewness of the data.
@@ -34,7 +34,7 @@ with the default output. Can have values:
 \item{round.digit}{number of decimal places required in the output.}
 
 \item{quant.seq}{vector of fractions (0 to 1) for which the quantiles are
-required \code{0.5} means median, \code{0} means smalles observation and
+required \code{0.5} means median, \code{0} means smallest observation and
 \code{1} means largest observation}
 
 \item{trim}{the fraction (0 to 0.5) of observations to be trimmed from each

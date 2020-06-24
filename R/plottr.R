@@ -18,7 +18,7 @@
 #' problem, or 'numeric' for regression). \code{xclasses} stores the class of
 #' all the variables in the dataframe in same order of columns. Note -
 #' if \code{yvar} is not NULL, then \code{tb} has to be a data.frame with
-#' atleast 2 columns (including the yvar). In such
+#' at least 2 columns (including the yvar). In such
 #' case xclasses should also have the class of \code{yvar} although it is
 #' also passed through \code{yclass}. This can also be set as NULL, in
 #' such case the function assigns a class based on the contents. If variable is
@@ -85,9 +85,9 @@
 #'
 #'
 #' @param tb a data.frame or a vector. If \code{yvar} argument is also passed,
-#' then this should be a dataframe including the repsonse variable (\code{yvar})
-#' @param yvar a string showing the repsonse (dependent) variable name. Can be
-#' \code{NULL} if reponse variable is not present. Make sure that this variable
+#' then this should be a data.frame including the response variable (\code{yvar})
+#' @param yvar a string showing the response (dependent) variable name. Can be
+#' \code{NULL} if response variable is not present. Make sure that this variable
 #' is present in the \code{tb}
 #' @param xclasses a vector of length \code{= ncol(tb)} with the data type of
 #'   all the columns. Can be \code{NULL}, in such case function assigns a class
@@ -130,7 +130,7 @@
 #' p <- plottr(mtcars, yvar = "mpg", yclass = "numeric")
 #' plot(p$disp)
 #'
-#' @import dplyr
+#' @importFrom dplyr "%>%"
 #'
 #'
 #' @export
@@ -154,9 +154,6 @@ plottr <- function(tb,
       stop("Add ... as an argument in all the passed plotting functions!")
     }
   }
-
-  # setting up ggplot theme
-  old_theme <- ggplot2::theme_set(theme_minimal())
 
   if (!is.null(yvar)) {
     if (is.null(yclass)) {
@@ -263,8 +260,6 @@ plottr <- function(tb,
                                                               fontface='bold')))
       out <- gridExtra::arrangeGrob(p1, xyplot, layout_matrix = cbind(1,1,2,2,2))
     }
-    # setting back the original theme
-    ggplot2::theme_set(old_theme)
 
     # setting the class
     class(out) <- c("analyzerPlot", class(out))
@@ -286,9 +281,6 @@ plottr <- function(tb,
       readline(prompt="Press [enter] to continue and wait for the plot to appear")
     }
   }
-
-  # setting back the original theme
-  ggplot2::theme_set(old_theme)
 
   invisible(plots)
 }

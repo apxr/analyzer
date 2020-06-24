@@ -20,7 +20,7 @@
 #'   in plot
 #' @param limit (logical) Whether to limit the plot to maximum missing value.
 #'   FALSE means the limit of axis will be [0, nrow(tb)]
-#' @param add_percent (logical) Whther to add percent as data labels on bar plot
+#' @param add_percent (logical) Whether to add percent as data labels on bar plot
 #' @param row.level (logical) Whether to create plot at rows and variables level
 #'
 #' @return This function returns a grob of class 'analyzePlot' which has a bar

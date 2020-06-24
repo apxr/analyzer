@@ -6,8 +6,7 @@
 #' asymmetry of the probability distribution of a real-valued random variable
 #' about its mean. The formula used is:
 #' \deqn{\frac{E[(X-\mu)^{3}]}{(E[(X-\mu)^2])^\frac{3}{2}}}. This formula is the
-#' typical definition used in many older textbooks and
-#' \href{https://en.wikipedia.org/wiki/Skewness}{wikipedia}
+#' typical definition used in many older textbooks and wikipedia
 #'
 #' @param x a numeric vector, matrix or a data.frame
 #' @param na.rm (logical) Should missing values be removed?
@@ -56,8 +55,7 @@ skewness <- function(x,
 #' distribution. The formula used is: \deqn{\frac{E[(X-\mu)^{4}]}{(
 #' E[(X-\mu)^2])^{2}}}.
 #' This formula is the typical definition
-#' used in many older textbooks and
-#' \href{https://en.wikipedia.org/wiki/Kurtosis}{wikipedia}
+#' used in many older textbooks and wikipedia
 #'
 #' @param x a numeric vector, matrix or a data.frame
 #' @param na.rm (logical) Should missing values be removed?
@@ -111,7 +109,7 @@ linedivider <- function(consolewidth = getOption("width"), st = 'x'){
   if (nchar(st) != 1 | length(st) != 1) stop("'st' should of length 1")
   cat("\n")
   cat(paste0(rep(st, consolewidth),collapse = ""))
-  cat("\n")
+  cat("\n\n")
 }
 
 #' Frequency table and Histogram
@@ -192,7 +190,7 @@ freqTable <- function(Value,
 #' give a warning.
 #' This function is used in the \code{explainer}.
 #'
-#' @param x a numeric vector of length atleast 3
+#' @param x a numeric vector of length at least 3
 #'
 #' @return prints a boxplot on the console which has:
 #' \itemize{

@@ -25,7 +25,7 @@ Generic function for printing the details of data. Based on
 the data type, this calls the appropriate method.
 }
 \details{
-Current methods for \code{explainer} are for data.framem, numeric, integer,
+Current methods for \code{explainer} are for data.frame, numeric, integer,
 character and factor vectors. To get the list of all available methods type
 the command \code{methods(explainer)}.
 }

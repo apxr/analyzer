@@ -2,7 +2,7 @@
 % Please edit documentation in R/CCassociation.R
 \name{CCassociation}
 \alias{CCassociation}
-\title{Association (Correlation) between Continous (numeric) Variables}
+\title{Association (Correlation) between Continuous (numeric) Variables}
 \usage{
 CCassociation(
   numtb,
@@ -16,7 +16,7 @@ CCassociation(
 }
 \arguments{
 \item{numtb}{a data frame with all the numerical columns. This should
-have atleast two columns}
+have at least two columns}
 
 \item{use}{an optional character string giving a method for computing
 association in the presence of missing values. This must be (complete or an
@@ -25,7 +25,7 @@ abbreviation of) one of the strings "everything", "all.obs",
 "everything", NAs will propagate conceptually, i.e., a resulting value will
 be NA whenever one of its contributing observations is NA. If use is
 "all.obs", then the presence of missing observations will produce an error.
-If use is "complete.obs" then missing values are handled by casewise
+If use is "complete.obs" then missing values are handled by case wise
 deletion (and if there are no complete cases, that gives an error).
 "na.or.complete" is the same unless there are no complete cases, that gives
 NA}
@@ -43,7 +43,7 @@ Default is 0.05}
 variables. values can be \code{"auto", "pearson",  "kendall", "spearman"}.
 See details for more information.}
 
-\item{methodMat1}{method dataframe like methodsMat from the function \code{
+\item{methodMat1}{method dataframe like methodMats from the function \code{
 association}}
 
 \item{methods_used}{a square data.frame which will store the type of
@@ -65,7 +65,7 @@ with only numeric columns
 \details{
 This function calls \code{cor} function to calculate the correlation values.
 The difference is that this doesn't take method as parameter, instead it
-decides the methods iteself using normality tests. If the variables satisfy
+decides the methods itself using normality tests. If the variables satisfy
 the assumption of Pearson correlation, then pearson correlation is calculated.
 Otherwise Spearman is calculated. To learn more, check the
 \code{\link[stats]{cor}}

@@ -1,11 +1,11 @@
-#' Association (Correlation) between Continous (numeric) Variables
+#' Association (Correlation) between Continuous (numeric) Variables
 #'
 #' \code{CCassociation} finds correlation between all the variables in data
 #' with only numeric columns
 #'
 #' This function calls \code{cor} function to calculate the correlation values.
 #' The difference is that this doesn't take method as parameter, instead it
-#' decides the methods iteself using normality tests. If the variables satisfy
+#' decides the methods itself using normality tests. If the variables satisfy
 #' the assumption of Pearson correlation, then pearson correlation is calculated.
 #' Otherwise Spearman is calculated. To learn more, check the
 #' \code{\link[stats]{cor}}
@@ -17,7 +17,7 @@
 #' variables
 #'
 #' @param numtb a data frame with all the numerical columns. This should
-#' have atleast two columns
+#' have at least two columns
 #' @param use an optional character string giving a method for computing
 #'   association in the presence of missing values. This must be (complete or an
 #'   abbreviation of) one of the strings "everything", "all.obs",
@@ -25,7 +25,7 @@
 #'   "everything", NAs will propagate conceptually, i.e., a resulting value will
 #'   be NA whenever one of its contributing observations is NA. If use is
 #'   "all.obs", then the presence of missing observations will produce an error.
-#'   If use is "complete.obs" then missing values are handled by casewise
+#'   If use is "complete.obs" then missing values are handled by case wise
 #'   deletion (and if there are no complete cases, that gives an error).
 #'   "na.or.complete" is the same unless there are no complete cases, that gives
 #'   NA
@@ -39,7 +39,7 @@
 #' @param method1 method for association between continuous-continuous
 #'   variables. values can be \code{"auto", "pearson",  "kendall", "spearman"}.
 #'   See details for more information.
-#' @param methodMat1 method dataframe like methodsMat from the function \code{
+#' @param methodMat1 method dataframe like methodMats from the function \code{
 #' association}
 #' @param methods_used a square data.frame which will store the type of
 #' association used between the variables. Dimension will be

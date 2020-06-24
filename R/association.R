@@ -2,14 +2,14 @@
 #'
 #' \code{association} finds association among all the variables in the data.
 #'
-#' This function calculates association value in three categoris -
+#' This function calculates association value in three categories -
 #' \itemize{
 #' \item between continuous variables (using \code{CCassociation} function)
 #' \item between categorical variables (using \code{QQassociation} function)
 #' \item between continuous and categorical variables (using \code{CQassociation}
 #'   function)
 #' }
-#' For more details, look at the individual documentaion of
+#' For more details, look at the individual documentation of
 #' \code{\link{CCassociation}}, \code{\link{QQassociation}},
 #' \code{\link{CQassociation}}
 #'
@@ -32,9 +32,9 @@
 #'   does 'Mann-Whitney’ test.
 #' @param methodMats This parameter can be used to define the methods for
 #' calculating correlation and association at variables pair level. The input is
-#' a square dataframe of dimension - number of columns in \code{tb}. The row
+#' a square data.frame of dimension - number of columns in \code{tb}. The row
 #' names and column names of \code{methodMats} are the column names of \code{tb}.
-#' The values in the dataframe can be:
+#' The values in the data.frame can be:
 #' \describe{
 #'  \item{between continuous-continuous variables}{from parameter \code{method1}
 #'  - "auto", "pearson",  "kendall", "spearman"}
@@ -55,7 +55,7 @@
 #'   "everything", NAs will propagate conceptually, i.e., a resulting value will
 #'   be NA whenever one of its contributing observations is NA. If use is
 #'   "all.obs", then the presence of missing observations will produce an error.
-#'   If use is "complete.obs" then missing values are handled by casewise
+#'   If use is "complete.obs" then missing values are handled by case wise
 #'   deletion (and if there are no complete cases, that gives an error).
 #'   "na.or.complete" is the same unless there are no complete cases, that gives
 #'   NA
@@ -77,7 +77,7 @@
 #'  \item{categorical_pvalue}{Chi Sq test p-value}
 #'  \item{continuous_categorical}{association value among continuous and
 #'  categorical variables}
-#'  \item{method_used}{A datafrome showing the method used for all pairs
+#'  \item{method_used}{A data.frome showing the method used for all pairs
 #'  of variables}
 #' }
 #'

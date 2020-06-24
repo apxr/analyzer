@@ -17,7 +17,7 @@ CQassociation(
 }
 \arguments{
 \item{numtb}{a data frame with all the numerical columns. This should
-have atleast two columns}
+have at least two columns}
 
 \item{factb}{a data frame with all the categorical columns. This should
 have atleast two columns}
@@ -34,7 +34,7 @@ abbreviation of) one of the strings "everything", "all.obs",
 "everything", NAs will propagate conceptually, i.e., a resulting value will
 be NA whenever one of its contributing observations is NA. If use is
 "all.obs", then the presence of missing observations will produce an error.
-If use is "complete.obs" then missing values are handled by casewise
+If use is "complete.obs" then missing values are handled by case wise
 deletion (and if there are no complete cases, that gives an error).
 "na.or.complete" is the same unless there are no complete cases, that gives
 NA}
@@ -46,7 +46,7 @@ See details of \code{\link{norm_test_fun}} for more information.}
 \item{normality_test_pval}{significance level for normality tests.
 Default is 0.05}
 
-\item{methodMat3}{method dataframe like methodsMat from the function \code{
+\item{methodMat3}{method dataframe like methodMats from the function \code{
 association}}
 
 \item{methods_used}{a square data.frame which will store the type of
@@ -60,14 +60,14 @@ a table with number of rows equal to number of columns in
 }
 \description{
 \code{CQassociation} finds Association measure between one
-categorical and one continuos variable.
+categorical and one continuous variable.
 }
 \details{
 This function measures the association between one categorical variable
 and one continuous variable present in different dataset. Two datasets
 are provided as input, one data has only numerical columns while other
 data has only categorical columns. This performs either t-test for the
-parameteric case and 'Mann-Whitney’ test for the non-parametric case.
+parametric case and 'Mann-Whitney’ test for the non-parametric case.
 If the method3 is passed as 'auto', the function defines the method
 itself based on different tests for equal variance and normality check
 which checks for assumptions for the t-test. If the assumptions are

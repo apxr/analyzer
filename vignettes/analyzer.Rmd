@@ -1,23 +1,20 @@
 ---
-output: github_document
+title: "analyzer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{analyzer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "60%"
+  comment = "#>"
 )
-options(width = 100)
 ```
 
 # analyzer
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 The goal of analyzer is to make data analysis easy and accessible to everyone by 
 automatically performing the common tasks involved in data analysis. With one 

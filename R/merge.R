@@ -1,10 +1,51 @@
-
-
-
+#' Analyze data for merging
+#'
+#' \code{mergeAnalyzer} analyzes the data drop after merge
+#'
+#' Prints the summary of data retained after merge and returns the merged data.
+#' This function uses data.table (if the package is installed) for faster data
+#' merge
+#'
+#' @param x left data to merge
+#' @param y right data to merge
+#' @param round.digit integer indicating the number of decimal places to be used
+#' @param ... other parameters needs to be passed to merge function
+#'
+#' @return prints summary of data retained after merging. Returns merged data.
+#' The summary has 6 columns:
+#' \itemize{
+#'  \item Column: Number of rows and union of column names of numeric columns
+#'  in both the data
+#'  \item x, y: Sum of columns in both table
+#'  \item Merged: Sum of columns in merged data
+#'  \item remainingWRTx: ratio of remaining data in merged data after merging.
+#'  example - 0.5 means that 50% data was dropped after merging (probably in case
+#'  of inner join). 1.5 means value became 150% of original sum because of some
+#'  duplicates present in data
+#'  \item remainingWRTy: same as above, but for y table
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' # Creating two tables to merge
+#' A <- data.frame(id = c("A", "A", "B", "D", "B"),
+#'                 valA = c(30, 83, 45, 2, 58))
+#'
+#' B <- data.frame(id = c("A", "C", "A", "B", "C", "C"),
+#'                 valB = c(10, 20, 30, 40, 50, 60))
+#'
+#' # uncomment below line
+#' mergeAnalyzer(A, B, allow.cartesian = TRUE, all = FALSE)
+#' }
+#'
+#' @export
 mergeAnalyzer <- function(x,
                           y,
                           round.digit = 2,
                           ...) {
+
+  # requireNamespace("data.table")
+
   cl <- class(x)
 
   if (!requireNamespace("data.table", quietly = TRUE)) {
@@ -79,12 +120,23 @@ getSummaryformerge <- function(tb,
                                round.digit = 2) {
   numrows <- nrow(tb)
   numvars <- which(sapply(tb, is.numeric))
-  tb <- tb[, numvars, with = FALSE]
-  tb <- t(tb[, lapply(.SD, sum, na.rm = TRUE)])
-  numvars <- row.names(tb)
-  tb <- data.table::data.table(tb)
-  tb$Column <- numvars
-  tb <- rbind(data.table::data.table(V1 = numrows, Column = "No. of Rows"), tb)
+
+  if (length(numvars) > 0) {
+    if (length(numvars) == 1) {
+      tb <- data.table::as.data.table(tb[, numvars, with = FALSE])
+      colnames(tb) <- names(numvars)
+    } else {
+      tb <- tb[, numvars, with = FALSE]
+    }
+    tb <- data.frame(sapply(tb, function(x){sum(x, na.rm = T)}))
+    numvars <- row.names(tb)
+    tb <- data.table::as.data.table(tb)
+    tb$Column <- numvars
+    colnames(tb)[1] <- "V1"
+  } else {
+    tb <- as.data.table(matrix(NA, nrow=0, ncol=2, dimnames = list(NULL, c("V1", "Column"))))
+  }
+  tb <- base::rbind(data.table::as.data.table(data.frame(V1 = numrows, Column = "No. of Rows")), tb)
   colnames(tb)[1] <- name
   tb[,1] <- round(tb[,1], round.digit)
   return(tb)

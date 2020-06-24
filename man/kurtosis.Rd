@@ -25,8 +25,7 @@ variable. Like skewness, kurtosis describes the shape of a probability
 distribution. The formula used is: \deqn{\frac{E[(X-\mu)^{4}]}{(
 E[(X-\mu)^2])^{2}}}.
 This formula is the typical definition
-used in many older textbooks and
-\href{https://en.wikipedia.org/wiki/Kurtosis}{wikipedia}
+used in many older textbooks and wikipedia
 }
 \examples{
 # for a single vector

@@ -22,10 +22,10 @@ plottr(
 }
 \arguments{
 \item{tb}{a data.frame or a vector. If \code{yvar} argument is also passed,
-then this should be a dataframe including the repsonse variable (\code{yvar})}
+then this should be a data.frame including the response variable (\code{yvar})}
 
-\item{yvar}{a string showing the repsonse (dependent) variable name. Can be
-\code{NULL} if reponse variable is not present. Make sure that this variable
+\item{yvar}{a string showing the response (dependent) variable name. Can be
+\code{NULL} if response variable is not present. Make sure that this variable
 is present in the \code{tb}}
 
 \item{xclasses}{a vector of length \code{= ncol(tb)} with the data type of
@@ -90,7 +90,7 @@ Defining the class of variables: If \code{yvar} is not NULL, then
 problem, or 'numeric' for regression). \code{xclasses} stores the class of
 all the variables in the dataframe in same order of columns. Note -
 if \code{yvar} is not NULL, then \code{tb} has to be a data.frame with
-atleast 2 columns (including the yvar). In such
+at least 2 columns (including the yvar). In such
 case xclasses should also have the class of \code{yvar} although it is
 also passed through \code{yclass}. This can also be set as NULL, in
 such case the function assigns a class based on the contents. If variable is
@@ -133,15 +133,27 @@ and \code{\link{Cx}}
 Default plots: If the \code{y} is \code{NULL}, then histogram with density
 is generated for numeric \code{x}. Boxplot
 is also shown in the same histogram using color and vertical lines. For
-factor \code{x}, a pie chart showing the distribution. If \code{y} is not
-\code{NULL}, then additional plots are added:
+factor \code{x}, a pie chart showing the distribution. This are the
+univariate plots which can be modified by using the FUN1 and FUN2 arguments.
 
-\itemize{ \item \strong{factor \code{x}, factor \code{y}}: Crosstab with
-heatmap \item \strong{factor \code{x}, numeric \code{y}}: histogram and
-boxplot of \code{y} for different values of \code{x} \item \strong{numeric
-\code{x}, factor \code{y}}: histogram and boxplot of \code{x} for different
-values of \code{y} \item \strong{numeric \code{x}, numeric \code{y}}: Scatter
-plot of \code{x} and \code{y} with rug plot included }
+If \code{y} is not
+\code{NULL}, then additional plots are added which can be modified by
+using the FUN3, FUN4, FUN5, FUN6 arguments:
+
+\itemize{
+ \item \strong{factor \code{x}, factor \code{y}}: Crosstab with
+heatmap (modified by using FUN6)
+ \item \strong{factor \code{x}, numeric \code{y}}: histogram and
+boxplot of \code{y} for different values of \code{x}
+(modified by using FUN4)
+ \item \strong{numeric \code{x}, factor \code{y}}:
+ histogram and boxplot of \code{x} for different
+ values of \code{y}
+ (modified by using FUN5)
+ \item \strong{numeric \code{x}, numeric \code{y}}: Scatter
+plot of \code{x} and \code{y} with rug plot included
+(modified by using FUN3)
+}
 }
 \examples{
 # simple use for one variable

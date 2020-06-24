@@ -1,13 +1,13 @@
 #' Association (Correlation) between Continuous-Categorical Variables
 #'
 #' \code{CQassociation} finds Association measure between one
-#' categorical and one continuos variable.
+#' categorical and one continuous variable.
 #'
 #' This function measures the association between one categorical variable
 #' and one continuous variable present in different dataset. Two datasets
 #' are provided as input, one data has only numerical columns while other
 #' data has only categorical columns. This performs either t-test for the
-#' parameteric case and 'Mann-Whitney’ test for the non-parametric case.
+#' parametric case and 'Mann-Whitney’ test for the non-parametric case.
 #' If the method3 is passed as 'auto', the function defines the method
 #' itself based on different tests for equal variance and normality check
 #' which checks for assumptions for the t-test. If the assumptions are
@@ -22,7 +22,7 @@
 #' \code{\link{QQassociation}} for Association between Categorical variables
 #'
 #' @param numtb a data frame with all the numerical columns. This should
-#' have atleast two columns
+#' have at least two columns
 #' @param factb a data frame with all the categorical columns. This should
 #' have atleast two columns
 #' @param method3 method for association between continuous-categorical
@@ -36,7 +36,7 @@
 #'   "everything", NAs will propagate conceptually, i.e., a resulting value will
 #'   be NA whenever one of its contributing observations is NA. If use is
 #'   "all.obs", then the presence of missing observations will produce an error.
-#'   If use is "complete.obs" then missing values are handled by casewise
+#'   If use is "complete.obs" then missing values are handled by case wise
 #'   deletion (and if there are no complete cases, that gives an error).
 #'   "na.or.complete" is the same unless there are no complete cases, that gives
 #'   NA
@@ -45,7 +45,7 @@
 #'   See details of \code{\link{norm_test_fun}} for more information.
 #' @param normality_test_pval significance level for normality tests.
 #' Default is 0.05
-#' @param methodMat3 method dataframe like methodsMat from the function \code{
+#' @param methodMat3 method dataframe like methodMats from the function \code{
 #' association}
 #' @param methods_used a square data.frame which will store the type of
 #' association used between the variables. Dimension will be
@@ -127,14 +127,14 @@ CQassociation <- function(numtb,
         if (assumption_test) {
           warning(paste0("Variable ", varnames[1],
                          " follows assumptions for t-test.
-                         Doing parameteric test for variables: ",
+                         Doing parametric test for variables: ",
                          paste0(varnames, collapse = ", ")))
           test <- t.test(x1, x2)
           return(list(m = "t-test", val = test$p.value))
         } else {
           warning(paste0("Variable ", varnames[1],
                          " doesn't follow assumptions of t-test.
-                         Doing Non-parameteric test (Mann-Whitney test)
+                         Doing Non-parametric test (Mann-Whitney test)
                          for variables: ",
                          paste0(varnames, collapse = ", ")))
           test <- wilcox.test(x ~ y)
@@ -189,13 +189,13 @@ CQassociation <- function(numtb,
         if (assumption_test) {
           warning(paste0("Variable ", varnames[1],
                          " follows assumptions of ANOVA.
-                         Doing parameteric test (ANOVA) for variables: ",
+                         Doing parametric test (ANOVA) for variables: ",
                          paste0(varnames, collapse = ", ")))
           return(list(m="ANOVA", val=summary(aov(x ~ y))[[1]][["Pr(>F)"]][1]))
         } else {
           warning(paste0("Variable ", varnames[1],
                          " doesn't follows assumptions of ANOVA. Doing
-                         Non-parameteric test (Kruskal Wallis) for variables: ",
+                         Non-parametric test (Kruskal Wallis) for variables: ",
                          paste0(varnames, collapse = ", ")))
           return(list(m = "Kruskal-Wallis", val = kruskal.test(x~y)$p.value))
         }

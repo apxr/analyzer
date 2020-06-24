@@ -34,9 +34,9 @@ does 'Mann-Whitney’ test.}
 
 \item{methodMats}{This parameter can be used to define the methods for
 calculating correlation and association at variables pair level. The input is
-a square dataframe of dimension - number of columns in \code{tb}. The row
+a square data.frame of dimension - number of columns in \code{tb}. The row
 names and column names of \code{methodMats} are the column names of \code{tb}.
-The values in the dataframe can be:
+The values in the data.frame can be:
 \describe{
  \item{between continuous-continuous variables}{from parameter \code{method1}
  - "auto", "pearson",  "kendall", "spearman"}
@@ -48,7 +48,7 @@ Default is NULL. In that case the method used for
 calculating correlation and association will be the inputs from parameters.
 
 This parameter can also tale some other values. See example for more details.
-\code{method1} and \code{method3}.}
+But its advisable to use like mentioned above.}
 
 \item{use}{an optional character string giving a method for computing
 association in the presence of missing values. This must be (complete or an
@@ -57,7 +57,7 @@ abbreviation of) one of the strings "everything", "all.obs",
 "everything", NAs will propagate conceptually, i.e., a resulting value will
 be NA whenever one of its contributing observations is NA. If use is
 "all.obs", then the presence of missing observations will produce an error.
-If use is "complete.obs" then missing values are handled by casewise
+If use is "complete.obs" then missing values are handled by case wise
 deletion (and if there are no complete cases, that gives an error).
 "na.or.complete" is the same unless there are no complete cases, that gives
 NA}
@@ -83,7 +83,7 @@ A list of three tables:
  \item{categorical_pvalue}{Chi Sq test p-value}
  \item{continuous_categorical}{association value among continuous and
  categorical variables}
- \item{method_used}{A datafrome showing the method used for all pairs
+ \item{method_used}{A data.frome showing the method used for all pairs
  of variables}
 }
 }
@@ -91,14 +91,14 @@ A list of three tables:
 \code{association} finds association among all the variables in the data.
 }
 \details{
-This function calculates association value in three categoris -
+This function calculates association value in three categories -
 \itemize{
 \item between continuous variables (using \code{CCassociation} function)
 \item between categorical variables (using \code{QQassociation} function)
 \item between continuous and categorical variables (using \code{CQassociation}
   function)
 }
-For more details, look at the individual documentaion of
+For more details, look at the individual documentation of
 \code{\link{CCassociation}}, \code{\link{QQassociation}},
 \code{\link{CQassociation}}
 }
@@ -114,7 +114,8 @@ methodMats <- out$method_used
 # the values can be changed as per requirement
 # NOTE: in addition to the values from parameters method1 and method3,
 #       the values in methodMats can also be the values returned by
-#       association function
+#       association function. But its advisable to use the options from
+#       method1 and method3 arguements
 methodMats["mpg", "disp"] <- methodMats["disp", "mpg"] <- "spearman"
 out <- association(tb, categorical = c("cyl", "vs"), methodMats = methodMats)
 rm(tb)

@@ -15,7 +15,7 @@ in plot}
 \item{limit}{(logical) Whether to limit the plot to maximum missing value.
 FALSE means the limit of axis will be [0, nrow(tb)]}
 
-\item{add_percent}{(logical) Whther to add percent as data labels on bar plot}
+\item{add_percent}{(logical) Whether to add percent as data labels on bar plot}
 
 \item{row.level}{(logical) Whether to create plot at rows and variables level}
 }
@@ -40,7 +40,7 @@ set to [0, nrow(tb)]. If \code{add_percent} is set as \code{TRUE} then
 percent is added as text to the bars. If \code{row.level} is set to
 \code{TRUE} then an additional plot is generated which shows which rows have
 missing values and in which variable (reshape2
-(\url{https://cran.r-project.org/web/packages/reshape2/index.html}) library
+(\url{https://CRAN.R-project.org/package=reshape2}) library
 is required for this).
 }
 \examples{

@@ -2,7 +2,7 @@
 #'
 #' \code{GenerateReport} generates the markdown report in one command
 #'
-#' This function cretes a rmarkdowwn report which can be converted to
+#' This function creates a rmarkdown report which can be converted to
 #' html or pdf format file.
 #'
 #' @param dtpath dataset path
@@ -28,7 +28,8 @@
 #' on successful run.
 #'
 #' @examples
-#'#' # Assigning the temporary folder in Documnets/temp fodler
+#' \dontrun{
+#' # Assigning the temporary folder in Documnets/temp fodler
 #' GenerateReport(dtpath = "~/Documents/mtcars.csv",
 #'                catVars = c("cyl", "vs", "am", "gear"),
 #'                yvar = "vs", model = "binClass",
@@ -36,6 +37,7 @@
 #'                title = "Report",
 #'                output_dir = "~/Documents/temp",
 #'                interactive.plots = FALSE)
+#' }
 #'
 #' @importFrom utils read.csv
 #'

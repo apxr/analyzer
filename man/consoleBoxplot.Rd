@@ -7,7 +7,7 @@
 consoleBoxplot(x)
 }
 \arguments{
-\item{x}{a numeric vector of length atleast 3}
+\item{x}{a numeric vector of length at least 3}
 }
 \value{
 prints a boxplot on the console which has:

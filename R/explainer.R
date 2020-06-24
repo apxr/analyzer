@@ -3,7 +3,7 @@
 #' Generic function for printing the details of data. Based on
 #' the data type, this calls the appropriate method.
 #'
-#' Current methods for \code{explainer} are for data.framem, numeric, integer,
+#' Current methods for \code{explainer} are for data.frame, numeric, integer,
 #' character and factor vectors. To get the list of all available methods type
 #' the command \code{methods(explainer)}.
 #'
@@ -53,13 +53,15 @@ explainer.data.frame <- function(X,
                                  xname = NULL,
                                  ...) {
   df <- X
+
   if (requireNamespace("data.table", quietly = TRUE)) {
     uniqRow <- data.table::uniqueN(df)
   } else {
     uniqRow <- nrow(unique(df))
   }
   consolewidth <- getOption("width")
-  dataname     <- deparse(substitute(df))
+  dataname     <- deparse(substitute(X))
+
   cat(paste0("Data: ", dataname,
              "\nType: ", paste0(class(df), collapse = ", "),
              "\n\nNumber of columns: ", ncol(df),
@@ -90,7 +92,7 @@ explainer.data.frame <- function(X,
 #' @param include.numeric a vector having strings which is also required along
 #' with the default output. Can have values:
 #' \itemize{
-#'  \item \code{trimmed.means} for printing the trimemd mean after removing
+#'  \item \code{trimmed.means} for printing the trimmed mean after removing
 #'  \code{trim} fraction of data from each side of x. \code{trim} can be passed
 #'  as an parameter
 #'  \item \code{skewness} for printing the skewness of the data.
@@ -100,7 +102,7 @@ explainer.data.frame <- function(X,
 #' }
 #' @param round.digit number of decimal places required in the output.
 #' @param quant.seq vector of fractions (0 to 1) for which the quantiles are
-#'  required \code{0.5} means median, \code{0} means smalles observation and
+#'  required \code{0.5} means median, \code{0} means smallest observation and
 #'  \code{1} means largest observation
 #' @param trim the fraction (0 to 0.5) of observations to be trimmed from each
 #'  end of x before the mean is computed. Values of trim outside that range are

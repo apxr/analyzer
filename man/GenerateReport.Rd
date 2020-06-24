@@ -11,7 +11,7 @@ GenerateReport(
   model = "linReg",
   title = "Report",
   output_format = "html_document",
-  tempDir = file.path(getwd(), "temp"),
+  output_dir = file.path(getwd(), "temp"),
   normality_test_method = "ks",
   interactive.plots = FALSE,
   include.vars = NULL
@@ -24,15 +24,17 @@ GenerateReport(
 
 \item{yvar}{y variable name if present else \code{NULL}}
 
-\item{model}{class of y variable (\code{numeric} or \code{factor}),
-else \code{NULL}}
+\item{model}{type of model - \code{linReg} for linear regression
+\code{binClass} for binary classification and \code{multiClass} for
+multiclass classification}
 
 \item{title}{Title of the generated report}
 
 \item{output_format}{output report format. \code{'html_documennt'} for
-html file.}
+html file or \code{pdf_document} for pdf file output. OR
+\code{c("html_document", "pdf_document")} for both.}
 
-\item{tempDir}{Directory where the output files needs to be stored.}
+\item{output_dir}{Directory where the output files needs to be stored.}
 
 \item{normality_test_method}{method for normality test for a variable.
  Values can be \code{shapiro}
@@ -45,23 +47,25 @@ html file.}
 \item{include.vars}{include only these variables from the full data}
 }
 \value{
-creates a rmarkdown and html/pdf file
+creates a rmarkdown and html/pdf file. Invisibly returns \code{TRUE}
+on successful run.
 }
 \description{
 \code{GenerateReport} generates the markdown report in one command
 }
 \details{
-This function cretes a rmarkdowwn report which can be converted to
+This function creates a rmarkdown report which can be converted to
 html or pdf format file.
 }
 \examples{
-
 \dontrun{
 # Assigning the temporary folder in Documnets/temp fodler
-GenerateReport(dtpath = "~/Documents/mtcars.csv", catVars = catVars,
-               yvar = "cyl", model = "binClass",
-               output_format = "html_document",
-               title = "Report", tempDir = "~/Documents/temp",
+GenerateReport(dtpath = "~/Documents/mtcars.csv",
+               catVars = c("cyl", "vs", "am", "gear"),
+               yvar = "vs", model = "binClass",
+               output_format = NULL,
+               title = "Report",
+               output_dir = "~/Documents/temp",
                interactive.plots = FALSE)
 }
 

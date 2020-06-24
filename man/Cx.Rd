@@ -13,7 +13,7 @@ Cx(dat, xname, binwidth = NULL, inc.density = T, ...)
 
 \item{binwidth}{for the histograms (extra parameters can be added like this)}
 
-\item{inc.density}{Binary. True to include the densoty plot on histogram}
+\item{inc.density}{Binary. True to include the density plot on histogram}
 
 \item{...}{required}
 }

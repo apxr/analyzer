@@ -32,7 +32,7 @@
 #' variables
 #'
 #' @param factb a data frame with all the categorical columns. This should
-#' have atleast two columns
+#' have at least two columns
 #' @param use an optional character string giving a method for computing
 #'   association in the presence of missing values. This must be (complete or an
 #'   abbreviation of) one of the strings "everything", "all.obs",
@@ -40,7 +40,7 @@
 #'   "everything", NAs will propagate conceptually, i.e., a resulting value will
 #'   be NA whenever one of its contributing observations is NA. If use is
 #'   "all.obs", then the presence of missing observations will produce an error.
-#'   If use is "complete.obs" then missing values are handled by casewise
+#'   If use is "complete.obs" then missing values are handled by case wise
 #'   deletion (and if there are no complete cases, that gives an error).
 #'   "na.or.complete" is the same unless there are no complete cases, that gives
 #'   NA

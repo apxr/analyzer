@@ -15,7 +15,8 @@
 
 CxCy <- function(dat, xname, yname, ...) {
   xyplot <- ggplot(dat, aes_string(x=xname, y=yname)) +
-    geom_point(alpha = 0.6, color = "#FF6666") + geom_rug()
+    geom_point(alpha = 0.6, color = "#FF6666") + geom_rug() +
+    theme_minimal()
   xyplot <- gridExtra::arrangeGrob(xyplot,
                                    top = paste0("Scatterplot of ",
                                                 xname, " and ", yname)
@@ -35,6 +36,7 @@ QxCy <- function(dat, xname, yname, binwidth.x = NULL, binwidth.y = NULL, ...) {
           legend.position="bottom",
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank()) +
+    theme_minimal() +
     facet_grid(rows=xname)
 
   # density histogram for different levels of x
@@ -43,6 +45,7 @@ QxCy <- function(dat, xname, yname, binwidth.x = NULL, binwidth.y = NULL, ...) {
 
   hist1 <- hist1 +
     labs(title="Histogram") + theme_linedraw() +
+    theme_minimal() +
     theme(plot.title = element_text(size=12,
                                     face="bold.italic", hjust = 0.5),
           legend.position="bottom") +
@@ -64,6 +67,7 @@ CxQy <- function(dat, xname, yname, binwidth.x = NULL, binwidth.y = NULL, ...) {
     geom_boxplot() +
     coord_flip() +
     labs(title="Boxplot") + theme_linedraw() +
+    theme_minimal() +
     theme(plot.title = element_text(size=12, face="bold.italic",
                                     hjust = 0.5),
           legend.position="bottom",
@@ -77,6 +81,7 @@ CxQy <- function(dat, xname, yname, binwidth.x = NULL, binwidth.y = NULL, ...) {
 
   hist1 <- hist1 +
     labs(title="Histogram") + theme_linedraw() +
+    theme_minimal() +
     theme(plot.title = element_text(size=12, face="bold.italic",
                                     hjust = 0.5),
           legend.position="bottom") +
@@ -103,8 +108,8 @@ QxQy <- function(dat, xname, yname, ...) {
   xyplot <- ggplot(crosstab, aes_string(xname, yname, fill= "Count")) +
     geom_tile(color = "grey69") +
     scale_fill_gradient2(low="white", high="#FF6666") +
-    #labs(title="Crosstab")+
     geom_text(aes(label=Count))+
+    theme_minimal() +
     theme(panel.grid.major=element_blank(),
           plot.title = element_text(hjust = 0.5, size = 12),
           legend.position = "blank") +
@@ -129,7 +134,7 @@ QxQy <- function(dat, xname, yname, ...) {
 #' @param xname name of independent (x) variable in \code{dat}
 #' @param ... required
 #' @param binwidth for the histograms (extra parameters can be added like this)
-#' @param inc.density Binary. True to include the densoty plot on histogram
+#' @param inc.density Binary. True to include the density plot on histogram
 #'
 #' @return a grob of plot
 #'
@@ -166,6 +171,7 @@ Cx <- function(dat, xname, binwidth = NULL, inc.density = T, ...) {
     scale_fill_manual('',
                       values = '#FF6666',
                       guide = guide_legend(override.aes = list(alpha = 0.5))) +
+    theme_minimal() +
     theme(plot.title = element_text(size=12, face="bold.italic", hjust = 0.5),
           legend.position = "bottom") +
     geom_vline(aes(xintercept=Value, color=labels),
