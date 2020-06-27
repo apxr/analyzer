@@ -24,6 +24,7 @@
 #' # for factor
 #' explainer(as.factor(mtcars$cyl)) #same as explainer.factor(as.factor(mtcars$cyl))
 #'
+#' @importFrom utils capture.output
 #' @export
 explainer <- function(X,
                       xname = NULL,
@@ -62,12 +63,12 @@ explainer.data.frame <- function(X,
   consolewidth <- getOption("width")
   dataname     <- deparse(substitute(X))
 
-  cat(paste0("Data: ", dataname,
-             "\nType: ", paste0(class(df), collapse = ", "),
-             "\n\nNumber of columns: ", ncol(df),
-             "\nNumber of rows: ", nrow(df),
-             "\nNumber of distinct rows: ", uniqRow,
-             "\n"))
+  message(paste0("Data: ", dataname,
+                 "\nType: ", paste0(class(df), collapse = ", "),
+                 "\n\nNumber of columns: ", ncol(df),
+                 "\nNumber of rows: ", nrow(df),
+                 "\nNumber of distinct rows: ", uniqRow,
+                 "\n"))
   linedivider(consolewidth)
 
   df <- as.data.frame(df)
@@ -146,9 +147,9 @@ explainer.numeric <- function(X,
 
   if (is.null(xname)) xname <- deparse(substitute(X))
   cat_ <- paste0(xname, " (type: ", paste0(class(X), collapse = ", "), ")")
-  cat(paste0(cat_, "\n",
-             paste0(rep(".", nchar(cat_)),collapse = ""),
-             "\n"))
+  message(paste0(cat_, "\n",
+                 paste0(rep(".", nchar(cat_)),collapse = ""),
+                 "\n"))
 
   # printing summary
   quant <- round(quantile(X, probs = quant.seq, names = T, na.rm = T), round.digit)
@@ -176,11 +177,12 @@ explainer.numeric <- function(X,
   blanks_to_add <- 1+max(0, max(nchar(out) - nchar(colnames(out))))
   names(out) <- paste0(paste0(rep(" ", blanks_to_add), collapse = ""),
                        names(out))
-  print(out, row.names = F)
+  message(paste0(capture.output(out), collapse = "\n"))
+
   consoleBoxplot(X)
   if (uniqx <= 10) {
-    cat("\nShowing frequency table because variable has less distinct values:\n")
-    print(freqTable(X), row.names = F)
+    message("Showing frequency table because variable has less distinct values:\n")
+    freqTable(X)
   }
 }
 
@@ -217,16 +219,16 @@ explainer.character <- function(X,
                                 ...) {
   if (is.null(xname)) xname <- deparse(substitute(X))
   cat_ <- paste0(xname, " (type: ", paste0(class(X), collapse = ", "), ")")
-  cat(paste0(cat_, "\n",
-             paste0(rep(".", nchar(cat_)),collapse = ""),
-             "\n"))
+  message(paste0(cat_, "\n",
+                 paste0(rep(".", nchar(cat_)),collapse = ""),
+                 "\n"))
 
   out <- data.frame(distinct = length(unique(X)),
                     missing = sum(is.na(X))
                     , check.names = F, stringsAsFactors = F)
   print(out, row.names = F)
-  cat("\n Frequency table: \n")
-  print(freqTable(X), row.names = F)
+  message("\nFrequency table: \n")
+  freqTable(X)
 }
 
 

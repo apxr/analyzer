@@ -11,7 +11,8 @@
 #' @param round.digit integer indicating the number of decimal places to be used
 #' @param ... other parameters needs to be passed to merge function
 #'
-#' @return prints summary of data retained after merging. Returns merged data.
+#' @return Returns merged data with same class as that of input data.
+#' Prints summary of data retained after merging.
 #' The summary has 6 columns:
 #' \itemize{
 #'  \item Column: Number of rows and union of column names of numeric columns
@@ -26,7 +27,6 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
 #' # Creating two tables to merge
 #' A <- data.frame(id = c("A", "A", "B", "D", "B"),
 #'                 valA = c(30, 83, 45, 2, 58))
@@ -34,9 +34,7 @@
 #' B <- data.frame(id = c("A", "C", "A", "B", "C", "C"),
 #'                 valB = c(10, 20, 30, 40, 50, 60))
 #'
-#' # uncomment below line
 #' mergeAnalyzer(A, B, allow.cartesian = TRUE, all = FALSE)
-#' }
 #'
 #' @export
 mergeAnalyzer <- function(x,
@@ -44,12 +42,11 @@ mergeAnalyzer <- function(x,
                           round.digit = 2,
                           ...) {
 
-  # requireNamespace("data.table")
-
   cl <- class(x)
 
   if (!requireNamespace("data.table", quietly = TRUE)) {
-   stop("Please install data.table for this function")
+    warning("Please install data.table for this function. Returning NULL")
+    return(NULL)
   }
 
   if (!"data.table" %in% cl) {
@@ -94,15 +91,16 @@ mergeAnalyzer <- function(x,
     ifelse(remainingWRTy > 1, paste0(remainingWRTy, " *"), remainingWRTy)
 
   out[is.na(out)] <- "-"
-  print(out)
+  # print(out)
+  message(paste0(capture.output(out), collapse = "\n"))
 
   if (any(remainingWRTx > 1 | remainingWRTy > 1)) {
-    cat(
+    message(
       "\n*:increased because either x, y or both has
       duplicates at the level of data merging\n\n"
     )
   }
-  cat(
+  message(
     "   'remainingWRTx' shows the proportion of total sum of column values
     left after the data merge with respect to x.
     See the documentation (?mergeAnalyzer) for more details\n"

@@ -8,3 +8,4 @@ cran-comments.md
 tasks
 ^README\.Rmd$
 inst/figures
+^CRAN-RELEASE$

@@ -107,9 +107,9 @@ kurtosis <- function(x,
 
 linedivider <- function(consolewidth = getOption("width"), st = 'x'){
   if (nchar(st) != 1 | length(st) != 1) stop("'st' should of length 1")
-  cat("\n")
-  cat(paste0(rep(st, consolewidth),collapse = ""))
-  cat("\n\n")
+  message("\n")
+  message(paste0(rep(st, consolewidth),collapse = ""))
+  message("\n")
 }
 
 #' Frequency table and Histogram
@@ -174,7 +174,7 @@ freqTable <- function(Value,
   out$Proportion <- round(out$Proportion/100, 3)
   out$' ' <- paste0(bars, "(", maxperc, "%)")
 
-  return(out)
+  message(paste0(capture.output(out), collapse = "\n"))
 }
 
 #' Boxplot on the console
@@ -206,9 +206,9 @@ freqTable <- function(Value,
 #'
 #' @export
 consoleBoxplot <- function(x) {
-  cat("Box plot: \n")
+  message("Box plot: \n")
   if (length(unique(x)) < 3) {
-    cat("No boxplot for this as unique values are < 3.")
+    message("No boxplot for this as unique values are < 3.")
   } else {
     quant <- quantile(x, na.rm = T)
     box <- round((quant-quant[1])*
@@ -216,16 +216,17 @@ consoleBoxplot <- function(x) {
                    (quant[5]-quant[1]))
     IQR <- box[4]-box[2]
 
-    cat(paste0("|",
-               paste0(rep(".", max(0, box[2]-2)),collapse = ""), "<",
-               paste0(rep("=", max(0, box[3]-box[2]-1)),collapse = ""), "*",
-               paste0(rep("=", max(0, box[4]-box[3]-1)),collapse = ""), ">",
-               paste0(rep(".", max(0, box[5]-box[4]-1)),collapse = ""), "|\n"))
+    message(paste0("|",
+                   paste0(rep(".", max(0, box[2]-2)),collapse = ""), "<",
+                   paste0(rep("=", max(0, box[3]-box[2]-1)),collapse = ""), "*",
+                   paste0(rep("=", max(0, box[4]-box[3]-1)),collapse = ""), ">",
+                   paste0(rep(".", max(0, box[5]-box[4]-1)),collapse = ""), "|\n"))
 
-    cat("Legends: | min and max, <==  ==> IQR, * median \n")
+    message("Legends: | min and max, <==  ==> IQR, * median")
     if (box[5] > box[4]+1.5*IQR) {
-      cat("\nPotential outliers present in this variable\n")
+      message("Potential outliers present in this variable")
     }
+    message("\n")
   }
 
 }

@@ -45,7 +45,7 @@ GenerateReport(dtpath = "mtcars.csv",
                yvar = "vs", model = "binClass",
                output_format = 'html_document',
                title = "Report", 
-               output_dir = "~/Documents/temp",
+               output_dir = tempdir(),
                interactive.plots = FALSE)
 ```
 
@@ -73,15 +73,15 @@ explainer(mtcars$mpg, quant.seq = c(0, 0.25, 0.5, 1),
           include.numeric = c("trimmed.means", "skewness", "kurtosis"))
 #> mtcars$mpg (type: numeric)
 #> ..........................
-#>     distinct    missing    mean    sd    median    0%    25%    50%    100%    trimmed mean5%
-#>           25          0   20.09  6.03      19.2  10.4  15.43   19.2    33.9             19.95
-#>     skewness    kurtosis
-#>         0.64        -0.2
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    25%    50%    100%    trimmed mean5%
+#> 1          25          0   20.09  6.03      19.2  10.4  15.43   19.2    33.9             19.95
+#>      skewness    kurtosis
+#> 1        0.64        -0.2
+#> Box plot:
 #> |.................<==============*============>..........................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
-#> 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> Potential outliers present in this variable
+#> 
 ```
 
 In above **explainer** we have asked to only give quantiles
@@ -97,11 +97,11 @@ explainer(as.factor(mtcars$cyl))
 #>  distinct missing
 #>         3       0
 #> 
-#>  Frequency table: 
-#>  Value Freq Proportion                                                
-#>      4   11      0.344 |****************************............|(50%)
-#>      6    7      0.219 |******************......................|(50%)
-#>      8   14      0.438 |***********************************.....|(50%)
+#> Frequency table:
+#>   Value Freq Proportion                                                
+#> 1     4   11      0.344 |****************************............|(50%)
+#> 2     6    7      0.219 |******************......................|(50%)
+#> 3     8   14      0.438 |***********************************.....|(50%)
 ```
 
 The percentage mentioned after the bars (50%) shows the maximum percent
@@ -121,154 +121,156 @@ explainer(mtcars)
 #> 
 #> mpg (type: numeric)
 #> ...................
-#>     distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
-#>           25          0   20.09  6.03      19.2  10.4   15.2  17.92     21  24.08    33.9
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
+#> 1          25          0   20.09  6.03      19.2  10.4   15.2  17.92     21  24.08    33.9
+#> Box plot:
 #> |.................<==============*============>..........................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
-#> 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> Potential outliers present in this variable
+#> 
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> cyl (type: numeric)
 #> ...................
-#>     distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
-#>            3          0    6.19  1.79         6     4      4      6      8      8       8
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
+#> 1           3          0    6.19  1.79         6     4      4      6      8      8       8
+#> Box plot:
 #> |<============================================*============================================>|
-#> Legends: | min and max, <==  ==> IQR, * median 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> 
 #> Showing frequency table because variable has less distinct values:
-#>  Value Freq Proportion                                                
-#>      4   11      0.344 |****************************............|(50%)
-#>      6    7      0.219 |******************......................|(50%)
-#>      8   14      0.438 |***********************************.....|(50%)
+#>   Value Freq Proportion                                                
+#> 1     4   11      0.344 |****************************............|(50%)
+#> 2     6    7      0.219 |******************......................|(50%)
+#> 3     8   14      0.438 |***********************************.....|(50%)
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> disp (type: numeric)
 #> ....................
-#>       distinct      missing      mean      sd      median      0%      20%      40%      60%
-#>             27            0    230.72  123.94       196.3    71.1   120.14      160    275.8
-#>       80%      100%
-#>     350.8       472
-#> Box plot: 
+#>        distinct      missing      mean      sd      median      0%      20%      40%      60%
+#> 1            27            0    230.72  123.94       196.3    71.1   120.14      160    275.8
+#>        80%      100%
+#> 1    350.8       472
+#> Box plot:
 #> |.........<================*============================>................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
+#> Legends: | min and max, <==  ==> IQR, * median
+#> 
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> hp (type: numeric)
 #> ..................
-#>      distinct     missing     mean     sd     median     0%     20%     40%     60%     80%
-#>            22           0   146.69  68.56        123     52    93.4     110     165     200
-#>      100%
-#>       335
-#> Box plot: 
+#>       distinct     missing     mean     sd     median     0%     20%     40%     60%     80%
+#> 1           22           0   146.69  68.56        123     52    93.4     110     165     200
+#>       100%
+#> 1      335
+#> Box plot:
 #> |............<========*=================>................................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
-#> 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> Potential outliers present in this variable
+#> 
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> drat (type: numeric)
 #> ....................
-#>     distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
-#>           22          0     3.6  0.53       3.7  2.76   3.07   3.35   3.82   4.05    4.93
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
+#> 1          22          0     3.6  0.53       3.7  2.76   3.07   3.35   3.82   4.05    4.93
+#> Box plot:
 #> |...........<=========================*========>.........................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
+#> Legends: | min and max, <==  ==> IQR, * median
+#> 
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> wt (type: numeric)
 #> ..................
-#>     distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
-#>           29          0    3.22  0.98      3.33  1.51   2.35   3.16   3.44   3.77    5.42
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
+#> 1          29          0    3.22  0.98      3.33  1.51   2.35   3.16   3.44   3.77    5.42
+#> Box plot:
 #> |.......................<================*=====>.........................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
-#> 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> Potential outliers present in this variable
+#> 
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> qsec (type: numeric)
 #> ....................
-#>     distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
-#>           30          0   17.85  1.79     17.71  14.5  16.73  17.34  18.18  19.33    22.9
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
+#> 1          30          0   17.85  1.79     17.71  14.5  16.73  17.34  18.18  19.33    22.9
+#> Box plot:
 #> |........................<=======*============>..........................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
-#> 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> Potential outliers present in this variable
+#> 
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> vs (type: numeric)
 #> ..................
-#>    distinct   missing   mean   sd   median   0%   20%   40%   60%   80%   100%
-#>           2         0   0.44  0.5        0    0     0     0     1     1      1
-#> Box plot: 
+#>     distinct   missing   mean   sd   median   0%   20%   40%   60%   80%   100%
+#> 1          2         0   0.44  0.5        0    0     0     0     1     1      1
+#> Box plot:
 #> No boxplot for this as unique values are < 3.
 #> Showing frequency table because variable has less distinct values:
-#>  Value Freq Proportion                                                
-#>      0   18      0.562 |******************************..........|(75%)
-#>      1   14      0.438 |***********************.................|(75%)
+#>   Value Freq Proportion                                                
+#> 1     0   18      0.562 |******************************..........|(75%)
+#> 2     1   14      0.438 |***********************.................|(75%)
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> am (type: numeric)
 #> ..................
-#>    distinct   missing   mean   sd   median   0%   20%   40%   60%   80%   100%
-#>           2         0   0.41  0.5        0    0     0     0   0.6     1      1
-#> Box plot: 
+#>     distinct   missing   mean   sd   median   0%   20%   40%   60%   80%   100%
+#> 1          2         0   0.41  0.5        0    0     0     0   0.6     1      1
+#> Box plot:
 #> No boxplot for this as unique values are < 3.
 #> Showing frequency table because variable has less distinct values:
-#>  Value Freq Proportion                                                
-#>      0   19      0.594 |********************************........|(75%)
-#>      1   13      0.406 |**********************..................|(75%)
+#>   Value Freq Proportion                                                
+#> 1     0   19      0.594 |********************************........|(75%)
+#> 2     1   13      0.406 |**********************..................|(75%)
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> gear (type: numeric)
 #> ....................
-#>     distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
-#>            3          0    3.69  0.74         4     3      3      3      4      4       5
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
+#> 1           3          0    3.69  0.74         4     3      3      3      4      4       5
+#> Box plot:
 #> |<============================================*>............................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> 
 #> Showing frequency table because variable has less distinct values:
-#>  Value Freq Proportion                                                
-#>      3   15      0.469 |**************************************..|(50%)
-#>      4   12      0.375 |******************************..........|(50%)
-#>      5    5      0.156 |************............................|(50%)
+#>   Value Freq Proportion                                                
+#> 1     3   15      0.469 |**************************************..|(50%)
+#> 2     4   12      0.375 |******************************..........|(50%)
+#> 3     5    5      0.156 |************............................|(50%)
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #> 
 #> carb (type: numeric)
 #> ....................
-#>     distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
-#>            6          0    2.81  1.62         2     1    1.2      2      3      4       8
-#> Box plot: 
+#>      distinct    missing    mean    sd    median    0%    20%    40%    60%    80%    100%
+#> 1           6          0    2.81  1.62         2     1    1.2      2      3      4       8
+#> Box plot:
 #> |...........<*=========================>..................................................|
-#> Legends: | min and max, <==  ==> IQR, * median 
-#> 
+#> Legends: | min and max, <==  ==> IQR, * median
 #> Potential outliers present in this variable
 #> 
 #> Showing frequency table because variable has less distinct values:
-#>  Value Freq Proportion                                                
-#>      1    7      0.219 |******************......................|(50%)
-#>      2   10      0.312 |*************************...............|(50%)
-#>      3    3      0.094 |********................................|(50%)
-#>      4   10      0.312 |*************************...............|(50%)
-#>      6    1      0.031 |**......................................|(50%)
-#>      8    1      0.031 |**......................................|(50%)
+#>   Value Freq Proportion                                                
+#> 1     1    7      0.219 |******************......................|(50%)
+#> 2     2   10      0.312 |*************************...............|(50%)
+#> 3     3    3      0.094 |********................................|(50%)
+#> 4     4   10      0.312 |*************************...............|(50%)
+#> 5     6    1      0.031 |**......................................|(50%)
+#> 6     8    1      0.031 |**......................................|(50%)
 #> 
 #> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#> 
 ```
 
 ## Example - Plots

@@ -11,7 +11,7 @@ GenerateReport(
   model = "linReg",
   title = "Report",
   output_format = "html_document",
-  output_dir = file.path(getwd(), "temp"),
+  output_dir = NULL,
   normality_test_method = "ks",
   interactive.plots = FALSE,
   include.vars = NULL
@@ -48,7 +48,7 @@ html file or \code{pdf_document} for pdf file output. OR
 }
 \value{
 creates a rmarkdown and html/pdf file. Invisibly returns \code{TRUE}
-on successful run.
+on successful run and \code{FALSE} in case of error
 }
 \description{
 \code{GenerateReport} generates the markdown report in one command
@@ -58,15 +58,13 @@ This function creates a rmarkdown report which can be converted to
 html or pdf format file.
 }
 \examples{
-\dontrun{
 # Assigning the temporary folder in Documnets/temp fodler
-GenerateReport(dtpath = "~/Documents/mtcars.csv",
+GenerateReport(dtpath = "mtcars.csv",
                catVars = c("cyl", "vs", "am", "gear"),
                yvar = "vs", model = "binClass",
                output_format = NULL,
                title = "Report",
-               output_dir = "~/Documents/temp",
+               output_dir = NULL,          # pass the output directory
                interactive.plots = FALSE)
-}
 
 }

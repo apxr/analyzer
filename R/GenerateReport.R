@@ -25,19 +25,17 @@
 #' @param include.vars include only these variables from the full data
 #'
 #' @return creates a rmarkdown and html/pdf file. Invisibly returns \code{TRUE}
-#' on successful run.
+#' on successful run and \code{FALSE} in case of error
 #'
 #' @examples
-#' \dontrun{
 #' # Assigning the temporary folder in Documnets/temp fodler
-#' GenerateReport(dtpath = "~/Documents/mtcars.csv",
+#' GenerateReport(dtpath = "mtcars.csv",
 #'                catVars = c("cyl", "vs", "am", "gear"),
 #'                yvar = "vs", model = "binClass",
 #'                output_format = NULL,
 #'                title = "Report",
-#'                output_dir = "~/Documents/temp",
+#'                output_dir = NULL,          # pass the output directory
 #'                interactive.plots = FALSE)
-#' }
 #'
 #' @importFrom utils read.csv
 #'
@@ -48,75 +46,82 @@ GenerateReport <- function(dtpath,
                            model = 'linReg',
                            title = "Report",
                            output_format = 'html_document',
-                           output_dir = file.path(getwd(), "temp"),
+                           output_dir = NULL,
                            normality_test_method = "ks",
                            interactive.plots = FALSE,
                            include.vars = NULL) {
 
-  # reading the data to get the column names
-  if (requireNamespace("data.table", quietly = TRUE)) {
-    tb_ <- data.table::fread(dtpath)
+
+  # Checking if the output directory is passed
+  if(is.null(output_dir)) {
+    warning("Give the output directory using the parameter 'output_dir' to save the files.")
+    invisible(FALSE)
   } else {
-    tb_ <- read.csv(dtpath)
-  }
+    # reading the data to get the column names
+    if (requireNamespace("data.table", quietly = TRUE)) {
+      tb_ <- data.table::fread(dtpath)
+    } else {
+      tb_ <- read.csv(dtpath)
+    }
 
-  if (is.null(model)) {
-    if (!is.null(yvar)) {
-      stop("If yvar is not NULL then 'model' parameter
+    if (is.null(model)) {
+      if (!is.null(yvar)) {
+        stop("If yvar is not NULL then 'model' parameter
            is required and can't be NULL")
-    } else {
-      model <- "linReg"
+      } else {
+        model <- "linReg"
+      }
     }
-  }
 
-  if (!is.null(yvar) & model != 'linReg') {
-    if (!yvar %in% catVars) {
-      catVars <- c(catVars, yvar)
+    if (!is.null(yvar) & model != 'linReg') {
+      if (!yvar %in% catVars) {
+        catVars <- c(catVars, yvar)
+      }
     }
-  }
 
 
-  if (!requireNamespace("MASS", quietly = TRUE) & !is.null(model)) {
-    stop("MASS library is required for the variable selection part")
-  }
-
-  if (!requireNamespace("nnet", quietly = TRUE) & model == "multiClass") {
-    stop("nnet library is required for multiclass classification")
-  }
-
-  # Creating the .rmd file
-  tx <- GenerateReport_(dtpath,
-                        catVars,
-                        yvar,
-                        model,
-                        output_dir = output_dir,
-                        title = title,
-                        normality_test_method = normality_test_method,
-                        interactive.plots = interactive.plots,
-                        df = tb_)
-
-  cat(tx, file = file.path(output_dir, "report.rmd"))
-
-  # Converting into html/interactive report
-  if (!is.null(output_format)) {
-    if (requireNamespace("rmarkdown", quietly = TRUE)) {
-      rmarkdown::render(input = file.path(output_dir, "report.rmd"),
-                        output_format = output_format)
-    } else {
-      stop("Please install library 'rmarkdown' to create the html/pdf file.")
-    }
-  }
-
-  # for the interactive report
-  if (interactive.plots) {
-    if (requireNamespace("shiny", quietly = TRUE) & !is.null(model)) {
-      rmarkdown::run(file = file.path(output_dir, "report.rmd"))
-    } else {
+    if (!requireNamespace("MASS", quietly = TRUE) & !is.null(model)) {
       stop("MASS library is required for the variable selection part")
     }
-  }
 
-  invisible(TRUE)
+    if (!requireNamespace("nnet", quietly = TRUE) & model == "multiClass") {
+      stop("nnet library is required for multiclass classification")
+    }
+
+    # Creating the .rmd file
+    tx <- GenerateReport_(dtpath,
+                          catVars,
+                          yvar,
+                          model,
+                          output_dir = output_dir,
+                          title = title,
+                          normality_test_method = normality_test_method,
+                          interactive.plots = interactive.plots,
+                          df = tb_)
+
+    cat(tx, file = file.path(output_dir, "report.rmd"))
+
+    # Converting into html/interactive report
+    if (!is.null(output_format)) {
+      if (requireNamespace("rmarkdown", quietly = TRUE)) {
+        rmarkdown::render(input = file.path(output_dir, "report.rmd"),
+                          output_format = output_format)
+      } else {
+        stop("Please install library 'rmarkdown' to create the html/pdf file.")
+      }
+    }
+
+    # for the interactive report
+    if (interactive.plots) {
+      if (requireNamespace("shiny", quietly = TRUE) & !is.null(model)) {
+        rmarkdown::run(file = file.path(output_dir, "report.rmd"))
+      } else {
+        stop("MASS library is required for the variable selection part")
+      }
+    }
+
+    invisible(TRUE)
+  }
 }
 
 
@@ -362,10 +367,11 @@ variable_plots <- plottr(tb, yvar = ", yvar, ",
     for (cn in columns){
       tx <- paste0(tx, "\n\n",
 "##### **Variable: ", cn, "**
-```{r variable_", cn, "}
+```{r variable_", cn, ", message = TRUE}
 explainer(tb$", cn,")
+```
 
-# Plot
+```{r plot_", cn, "}
 plot(variable_plots$", cn, ")
 ```")
       if (!cn %in% catVars) {

@@ -16,7 +16,8 @@ mergeAnalyzer(x, y, round.digit = 2, ...)
 \item{...}{other parameters needs to be passed to merge function}
 }
 \value{
-prints summary of data retained after merging. Returns merged data.
+Returns merged data with same class as that of input data.
+Prints summary of data retained after merging.
 The summary has 6 columns:
 \itemize{
  \item Column: Number of rows and union of column names of numeric columns
@@ -39,7 +40,6 @@ This function uses data.table (if the package is installed) for faster data
 merge
 }
 \examples{
-\dontrun{
 # Creating two tables to merge
 A <- data.frame(id = c("A", "A", "B", "D", "B"),
                 valA = c(30, 83, 45, 2, 58))
@@ -48,6 +48,5 @@ B <- data.frame(id = c("A", "C", "A", "B", "C", "C"),
                 valB = c(10, 20, 30, 40, 50, 60))
 
 mergeAnalyzer(A, B, allow.cartesian = TRUE, all = FALSE)
-}
 
 }

@@ -276,7 +276,7 @@ plottr <- function(tb,
       if(!is.null(i)){
         plot(i)
       } else {
-        cat("This plot failed to be generated. Try 'plottr' for this variable.")
+        message("This plot failed to be generated. Try 'plottr' for this variable.")
       }
       readline(prompt="Press [enter] to continue and wait for the plot to appear")
     }

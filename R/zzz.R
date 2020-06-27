@@ -1,5 +1,5 @@
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("analyzer loaded successfully")
+
 }
 
 
