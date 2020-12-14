@@ -1,5 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+![all](http://cranlogs.r-pkg.org/badges/grand-total/analyzer?color=brightgreen)
 
 # analyzer
 
